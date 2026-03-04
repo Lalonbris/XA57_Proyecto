@@ -1,0 +1,20 @@
+﻿@model XA57_Proyecto.Models.Producto
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<div style="display: flex; gap: 40px; padding: 40px; max-width: 1100px; margin: 0 auto;">
+
+    <!-- React maneja todo: imagen + overlay + configurador -->
+    <div id="configurador-root"
+         data-producto-id="@Model.Id"
+         data-producto-nombre="@Model.Nombre"
+         data-producto-imagen="@Model.ImagenUrl"
+         style="display: flex; gap: 40px; width: 100%;">
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/react/static/js/main.a906df49.js"></script>
+}
