@@ -1,23 +1,34 @@
-using XA57_Proyecto.Models;
 using Microsoft.EntityFrameworkCore;
+using XA57_Proyecto.Application.Interfaces;
+using XA57_Proyecto.Application.Services;
+using XA57_Proyecto.Infrastructure.Data;
+using XA57_Proyecto.Infrastructure.Repositories;
+using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Agrega esto:
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Infrastructure
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<ILineaRepository, LineaRepository>();
+builder.Services.AddScoped<IModeloAutobusRepository, ModeloAutobusRepository>();
 
-// Add services to the container.
+// Application
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<ILineaService, LineaService>();
+builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

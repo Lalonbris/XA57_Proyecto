@@ -1,176 +1,151 @@
-﻿@model List<XA57_Proyecto.Models.Producto>
+@model List<XA57_Proyecto.Domain.Entities.Producto>
 
 @{
     ViewData["Title"] = "Catálogo";
 }
 
-<div style="max-width: 1100px; margin: 0 auto; padding: 40px 20px;">
+<div style="padding: 52px 0 80px;">
 
-    <h1 style="font-family: 'Segoe UI', sans-serif; margin-bottom: 8px;">Catálogo</h1>
-    <p style="color: #6b7280; font-family: 'Segoe UI', sans-serif; margin-bottom: 32px;">
-        @Model.Count productos disponibles
-    </p>
-
-    <!-- Grid de productos -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px;">
-        @foreach (var producto in Model)
-        {
-            <div style="
-                    background: #1a1a1a;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    transition: transform 0.2s;
-                    cursor: pointer;
-                "
-                 onmouseover="this.style.transform='translateY(-4px)'"
-                 onmouseout="this.style.transform='translateY(0)'">
-
-                <!-- Imagen -->
-                <div style="background: #fff; padding: 16px; text-align: center;">
-                    <img src="@producto.ImagenUrl"
-                         alt="@producto.Nombre"
-                         style="height: 160px; object-fit: contain; width: 100%;"
-                         onerror="this.src='/images/placeholder.png'" />
-                </div>
-
-                <!-- Info -->
-                <div style="padding: 16px;">
-                    <span style="
-                            font-size: 11px; font-weight: 600;
-                            color: #f59e0b; text-transform: uppercase;
-                            letter-spacing: 1px;
-                        ">@producto.Categoria</span>
-
-                    <h3 style="
-                            font-family: 'Segoe UI', sans-serif;
-                            font-size: 15px; color: #fff;
-                            margin: 6px 0 8px;
-                        ">
-                        @producto.Nombre
-                    </h3>
-
-                    <p style="
-                            font-size: 13px; color: #9ca3af;
-                            margin-bottom: 16px; line-height: 1.4;
-                        ">@producto.Descripcion</p>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 20px; font-weight: 700; color: #fff;">
-                            $@producto.Precio
-                        </span>
-                        <button onclick="abrirModal(@producto.Id, '@producto.Nombre')" style="
-        background: #f59e0b; color: #fff;
-        padding: 8px 16px; border-radius: 8px;
-        border: none; font-size: 13px;
-        font-weight: 600; font-family: 'Segoe UI', sans-serif;
-        cursor: pointer;
-    ">
-                            Ver
-                        </button>
-                    </div>
-                </div>
-            </div>
-        }
-        <!-- Modal -->
-        <div id="modal-producto" style="
-    display: none;
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-">
-            <div style="
-        background: #1a1a1a;
-        border-radius: 16px;
-        padding: 32px;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
-        border: 1px solid #333;
-    ">
-                <h3 id="modal-nombre" style="color: #fff; font-family: 'Segoe UI', sans-serif; margin-bottom: 8px;"></h3>
-                <p style="color: #9ca3af; font-size: 14px; margin-bottom: 24px;">
-                    ¿Deseas personalizar este producto antes de agregarlo al carrito?
-                </p>
-
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <a id="modal-btn-personalizar" href="#" style="
-                background: #f59e0b; color: #fff;
-                padding: 12px; border-radius: 10px;
-                text-decoration: none; font-weight: 700;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 15px;
-            ">Personalizar</a>
-
-                    <button id="modal-btn-carrito" style="
-                background: #374151; color: #fff;
-                padding: 12px; border-radius: 10px;
-                border: none; font-weight: 600;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 15px; cursor: pointer;
-            ">
-                        Agregar al carrito sin personalizar
-                    </button>
-
-                    <button onclick="cerrarModal()" style="
-                background: none; color: #9ca3af;
-                padding: 8px; border-radius: 10px;
-                border: 1px solid #333; font-size: 14px;
-                cursor: pointer; font-family: 'Segoe UI', sans-serif;
-            ">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+            <span class="xa57-label">@Model.Count productos disponibles</span>
+            <h1 class="xa57-title mb-0" style="font-size: 2.4rem;">Catálogo</h1>
         </div>
-
-        @section Scripts {
-            <script>
-                let productoIdActual = null;
-
-                function abrirModal(id, nombre) {
-                    productoIdActual = id;
-                    document.getElementById("modal-nombre").textContent = nombre;
-                    document.getElementById("modal-btn-personalizar").href = "/Productos/Detalle/" + id;
-                    document.getElementById("modal-producto").style.display = "flex";
-                }
-
-                function cerrarModal() {
-                    document.getElementById("modal-producto").style.display = "none";
-                    productoIdActual = null;
-                }
-
-                document.getElementById("modal-btn-carrito").addEventListener("click", async () => {
-                    const response = await fetch("/Carrito/Agregar", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            productoId: productoIdActual,
-                            color: "Original",
-                            numeroSerie: "",
-                            notasEspeciales: "",
-                            cantidad: 1
-                        })
-                    });
-                    cerrarModal();
-                    if (response.ok) alert("Agregado al carrito.");
-                });
-
-                // Cierra el modal al hacer click fuera
-                document.getElementById("modal-producto").addEventListener("click", (e) => {
-                    if (e.target === document.getElementById("modal-producto")) cerrarModal();
-                });
-            </script>
-        }
     </div>
 
-    @if (!Model.Any())
+    <!-- Grid -->
+    @if (Model.Any())
     {
-        <div style="text-align: center; padding: 80px 0; color: #6b7280;">
-            <p style="font-size: 18px;">No hay productos disponibles.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+            @foreach (var producto in Model)
+            {
+                <div class="xa57-product-card">
+                    <div class="xa57-product-card__img">
+                        <img src="@producto.ImagenUrl"
+                             alt="@producto.Nombre"
+                             onerror="this.src='/images/placeholder.png'" />
+                    </div>
+                    <div class="xa57-product-card__body">
+                        <span class="xa57-product-card__cat">@producto.TipoProducto?.Nombre</span>
+                        <p class="xa57-product-card__name">@producto.Nombre</p>
+                        <p class="xa57-product-card__desc">@producto.Descripcion</p>
+                        <div class="xa57-product-card__footer">
+                            <span class="xa57-product-card__price">$@producto.Precio</span>
+                            <button class="xa57-product-card__cta"
+                                    onclick="abrirModal(@producto.Id, '@producto.Nombre')">
+                                Ver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="xa57-empty">
+            <i class="material-icons xa57-empty__icon">inventory_2</i>
+            <p class="xa57-empty__text">No hay productos disponibles.</p>
         </div>
     }
 
 </div>
+
+<!-- Modal -->
+<div id="modal-producto" class="xa57-modal-overlay">
+    <div class="xa57-modal">
+        <h3 id="modal-nombre" class="xa57-modal__name"></h3>
+        <p class="xa57-modal__text">
+            Personaliza este producto con colores y numero de unidad, o agrégalo directamente.
+        </p>
+        <div class="d-flex flex-column gap-3">
+            <a id="modal-btn-personalizar" href="#" class="btn-xa57 btn-xa57-primary">
+                <i class="material-icons" style="font-size:16px;">tune</i>
+                Personalizar y agregar
+            </a>
+            <button id="modal-btn-carrito" class="btn-xa57 btn-xa57-secondary">
+                <i class="material-icons" style="font-size:16px;">shopping_bag</i>
+                Agregar sin personalizar
+            </button>
+            <button onclick="cerrarModal()" class="btn-xa57 btn-xa57-ghost">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let productoIdActual = null;
+
+        function abrirModal(id, nombre) {
+            productoIdActual = id;
+            document.getElementById("modal-nombre").textContent = nombre;
+            document.getElementById("modal-btn-personalizar").href = "/Productos/Detalle/" + id;
+            document.getElementById("modal-producto").style.display = "flex";
+        }
+
+        function cerrarModal() {
+            document.getElementById("modal-producto").style.display = "none";
+            productoIdActual = null;
+        }
+
+        document.getElementById("modal-btn-carrito").addEventListener("click", async () => {
+            const response = await fetch("/Carrito/Agregar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productoId: productoIdActual,
+                    cantidad: 1
+                })
+            });
+            cerrarModal();
+            if (response.ok) {
+                fetch('/Carrito/Cantidad')
+                    .then(r => r.json())
+                    .then(n => {
+                        if (n > 0) {
+                            var badge = document.getElementById('carrito-badge');
+                            badge.textContent = n;
+                            badge.style.display = 'flex';
+                        }
+                    });
+                mostrarToast("Producto agregado al carrito.");
+            }
+        });
+
+        document.getElementById("modal-producto").addEventListener("click", e => {
+            if (e.target === document.getElementById("modal-producto")) cerrarModal();
+        });
+
+        function mostrarToast(texto) {
+            const t = document.createElement("div");
+            t.textContent = texto;
+            Object.assign(t.style, {
+                position: "fixed", bottom: "28px", right: "28px",
+                background: "#fff", color: "#080808",
+                padding: "13px 20px",
+                borderRadius: "10px",
+                fontFamily: "Inter, sans-serif",
+                fontSize: "13px",
+                fontWeight: "600",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
+                zIndex: "9999",
+                opacity: "0",
+                transition: "opacity 0.2s ease, transform 0.2s ease",
+                transform: "translateY(8px)"
+            });
+            document.body.appendChild(t);
+            requestAnimationFrame(() => {
+                t.style.opacity = "1";
+                t.style.transform = "translateY(0)";
+            });
+            setTimeout(() => {
+                t.style.opacity = "0";
+                t.style.transform = "translateY(8px)";
+                setTimeout(() => t.remove(), 220);
+            }, 2600);
+        }
+    </script>
+}

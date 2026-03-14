@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using XA57_Proyecto.Models;
+using XA57_Proyecto.Infrastructure.Data;
 
 #nullable disable
 
@@ -24,7 +24,7 @@ namespace XA57_Proyecto.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("XA57_Proyecto.Models.Producto", b =>
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Producto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

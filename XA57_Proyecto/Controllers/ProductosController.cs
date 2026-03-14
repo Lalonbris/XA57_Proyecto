@@ -1,29 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using XA57_Proyecto.Models;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using XA57_Proyecto.Application.Interfaces;
 
 namespace XA57_Proyecto.Controllers
 {
     public class ProductosController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IProductoService _productoService;
 
-        public ProductosController(AppDbContext context)
+        public ProductosController(IProductoService productoService)
         {
-            _context = context;
+            _productoService = productoService;
         }
 
         public async Task<IActionResult> Detalle(int id)
         {
-            var producto = await _context.Productos.FindAsync(id);
-
+            var producto = await _productoService.ObtenerPorIdAsync(id);
             if (producto == null) return NotFound();
-
             return View(producto);
         }
+
         public async Task<IActionResult> Catalogo()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var productos = await _productoService.ObtenerTodosAsync();
             return View(productos);
         }
     }

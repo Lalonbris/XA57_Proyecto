@@ -1,4 +1,4 @@
-namespace XA57_Proyecto.Models
+namespace XA57_Proyecto.ViewModels
 {
     public class ErrorViewModel
     {

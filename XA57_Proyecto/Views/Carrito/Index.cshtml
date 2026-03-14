@@ -1,0 +1,123 @@
+@model XA57_Proyecto.ViewModels.CarritoViewModel
+
+@{
+    ViewData["Title"] = "Mi Carrito";
+}
+
+<div style="max-width: 820px; margin: 0 auto; padding: 52px 0 80px;">
+
+    <!-- Header -->
+    <div class="mb-5">
+        <span class="xa57-label">Tu carrito</span>
+        <h1 class="xa57-title mb-0" style="font-size: 2.2rem;">
+            @Model.Items.Count @(Model.Items.Count == 1 ? "Producto" : "Productos")
+        </h1>
+    </div>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="xa57-empty">
+            <i class="material-icons xa57-empty__icon">shopping_bag</i>
+            <p class="xa57-empty__text">Tu carrito está vacío.</p>
+            <a asp-controller="Home" asp-action="Catalogo" class="btn-xa57 btn-xa57-primary">
+                Explorar Catálogo
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Items -->
+        <div class="d-flex flex-column gap-3 mb-4">
+            @foreach (var item in Model.Items)
+            {
+                <div class="xa57-cart-item">
+
+                    <div class="xa57-cart-item__img">
+                        <img src="@item.Producto?.ImagenUrl"
+                             alt="@item.Producto?.Nombre"
+                             onerror="this.src='/images/placeholder.png'" />
+                    </div>
+
+                    <div class="xa57-cart-item__info">
+                        <p class="xa57-cart-item__name">@item.Producto?.Nombre</p>
+                        <div class="xa57-cart-item__meta">
+                            @if (item.ModeloAutobus != null)
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">Modelo</span>@item.ModeloAutobus.Nombre
+                                </span>
+                            }
+                            @if (item.Linea != null)
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">Línea</span>@item.Linea.Nombre
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.NombreOperador))
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">Operador</span>@item.NombreOperador
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.NumeroEconomico))
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">No. Económico</span>#@item.NumeroEconomico
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Ruta))
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">Ruta</span>@item.Ruta
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.NotasEspeciales))
+                            {
+                                <span>
+                                    <span class="xa57-cart-item__meta-key">Notas</span>@item.NotasEspeciales
+                                </span>
+                            }
+                            <span>
+                                <span class="xa57-cart-item__meta-key">Cant.</span>@item.Cantidad
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="xa57-cart-item__price">
+                        <p class="xa57-cart-item__subtotal">$@((item.Producto?.Precio ?? 0) * item.Cantidad)</p>
+                        @if (item.Cantidad > 1)
+                        {
+                            <p class="xa57-cart-item__unit">$@item.Producto?.Precio c/u</p>
+                        }
+                    </div>
+
+                    <form asp-action="Eliminar" asp-route-id="@item.Id" method="post">
+                        <button type="submit" class="xa57-cart-item__del" title="Eliminar">
+                            <i class="material-icons">delete_outline</i>
+                        </button>
+                    </form>
+
+                </div>
+            }
+        </div>
+
+        <!-- Summary -->
+        <div class="xa57-cart-summary">
+            <div class="xa57-cart-summary__row">
+                <span class="xa57-cart-summary__label">
+                    Total &middot; @Model.Items.Sum(i => i.Cantidad) unidades
+                </span>
+                <span class="xa57-cart-summary__total">$@Model.Total</span>
+            </div>
+            <div class="xa57-cart-summary__actions">
+                <a asp-controller="Home" asp-action="Catalogo" class="btn-xa57 btn-xa57-secondary">
+                    Seguir comprando
+                </a>
+                <button class="btn-xa57 btn-xa57-primary">
+                    Confirmar pedido
+                </button>
+            </div>
+        </div>
+    }
+
+</div>

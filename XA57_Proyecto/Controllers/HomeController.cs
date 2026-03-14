@@ -1,19 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
-using XA57_Proyecto.Models;
+using XA57_Proyecto.Application.Interfaces;
+using XA57_Proyecto.ViewModels;
 
 namespace XA57_Proyecto.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AppDbContext _context;
+        private readonly IProductoService _productoService;
 
-        public HomeController(ILogger<HomeController> logger, AppDbContext context)
+        public HomeController(ILogger<HomeController> logger, IProductoService productoService)
         {
             _logger = logger;
-            _context = context;
+            _productoService = productoService;
         }
 
         public IActionResult Index()
@@ -28,7 +28,7 @@ namespace XA57_Proyecto.Controllers
 
         public async Task<IActionResult> Catalogo()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var productos = await _productoService.ObtenerTodosAsync();
             return View(productos);
         }
 
