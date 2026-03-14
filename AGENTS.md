@@ -131,3 +131,25 @@ namespace XA57_Proyecto.Domain.Entities
     }
 }
 ```
+
+## Development Log
+
+### 2026-03-13: Phase 1 - Service Validation
+
+- **Custom Exception**: Created `Application/Exceptions/ValidationException.cs` for consistent error handling.
+- **PedidoService Validation**:
+  - Injected `IProductoRepository` and `ITipoProductoRepository`.
+  - Added logic to `AgregarAsync` to validate:
+    - `Cantidad` must be greater than 0.
+    - `ProductoId` must exist and be active.
+    - `NombreOperador`, `NumeroEconomico`, and `Ruta` do not exceed the `MaxCaracteres` defined in `TipoProducto`.
+- **ProductoService Validation**:
+  - Added new methods `AgregarAsync` and `ActualizarAsync` to the service and repository layers.
+  - Implemented validation for product properties (`Nombre`, `Precio`, `TipoProductoId`).
+- **New Repositories**:
+  - Created `ITipoProductoRepository` and `TipoProductoRepository` for data access to `tipos_producto` table.
+- **Dependency Injection**:
+  - Registered `ITipoProductoRepository` in `Program.cs`.
+- **Code Refinements**:
+  - Fixed a nullable warning in `PedidoResultDto`.
+- **Build Verification**: Ensured the project builds successfully after all changes.

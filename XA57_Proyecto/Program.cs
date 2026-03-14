@@ -15,6 +15,7 @@ builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<ILineaRepository, LineaRepository>();
 builder.Services.AddScoped<IModeloAutobusRepository, ModeloAutobusRepository>();
+builder.Services.AddScoped<ITipoProductoRepository, TipoProductoRepository>();
 
 // Application
 builder.Services.AddScoped<IProductoService, ProductoService>();
@@ -23,6 +24,17 @@ builder.Services.AddScoped<ILineaService, LineaService>();
 builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -36,6 +48,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCors("AllowReactApp");
 
 app.UseAuthorization();
 

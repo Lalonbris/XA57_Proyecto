@@ -24,5 +24,18 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             await _context.Productos
                 .Include(p => p.TipoProducto)
                 .FirstOrDefaultAsync(p => p.Id == id);
+        
+        public async Task<Producto> AgregarAsync(Producto producto)
+        {
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+            return producto;
+        }
+
+        public async Task ActualizarAsync(Producto producto)
+        {
+            _context.Entry(producto).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
     }
 }

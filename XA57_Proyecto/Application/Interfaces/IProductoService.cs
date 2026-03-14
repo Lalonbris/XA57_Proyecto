@@ -6,5 +6,7 @@ namespace XA57_Proyecto.Application.Interfaces
     {
         Task<List<Producto>> ObtenerTodosAsync();
         Task<Producto?> ObtenerPorIdAsync(int id);
+        Task<Producto> AgregarAsync(Producto producto);
+        Task ActualizarAsync(Producto producto);
     }
 }
