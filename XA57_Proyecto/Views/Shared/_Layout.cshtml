@@ -61,7 +61,7 @@
                         <li class="nav-item d-flex align-items-center">
                             <a class="xa57-cart-btn" asp-controller="Carrito" asp-action="Index">
                                 <i class="material-icons" style="font-size:19px;">shopping_bag</i>
-                                <span class="xa57-badge" id="carrito-badge" style="display:none;">0</span>
+                                <span class="xa57-badge" id="cart-badge" style="display:none;">0</span>
                             </a>
                         </li>
                     </ul>
@@ -89,15 +89,21 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>
-        fetch('/Carrito/Cantidad')
-            .then(r => r.json())
-            .then(n => {
-                if (n > 0) {
-                    var badge = document.getElementById('carrito-badge');
-                    badge.textContent = n;
-                    badge.style.display = 'flex';
-                }
-            });
+        window.actualizarIconoCarrito = function () {
+            console.log("actualizarIconoCarrito FUE LLAMADA");
+            fetch('/Carrito/Cantidad')
+                .then(response => response.json())
+                .then(cantidad => {
+                    console.log("Cantidad recibida:", cantidad);
+                    const cartBadge = document.getElementById('cart-badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = cantidad;
+                        cartBadge.style.display = cantidad > 0 ? 'flex' : 'none';
+                    }
+                });
+        }
+        console.log("actualizarIconoCarrito DEFINIDA EN WINDOW");
+        document.addEventListener('DOMContentLoaded', window.actualizarIconoCarrito);
     </script>
 </body>
 </html>

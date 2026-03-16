@@ -26,6 +26,12 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("numero_economico")]
         public string? NumeroEconomico { get; set; }
 
+        [Column("color")]
+        public string? Color { get; set; }
+
+        [Column("color_hex")]
+        public string? ColorHex { get; set; }
+
         [Column("ruta")]
         public string? Ruta { get; set; }
 

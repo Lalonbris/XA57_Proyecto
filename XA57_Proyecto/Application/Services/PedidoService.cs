@@ -38,18 +38,14 @@ namespace XA57_Proyecto.Application.Services
                 var tipoProducto = await _tipoProductoRepo.ObtenerPorIdAsync(producto.TipoProductoId.Value);
                 if (tipoProducto != null)
                 {
-                    if (tipoProducto.PermiteNombre && (item.NombreOperador?.Length > tipoProducto.MaxCaracteres))
-                    {
-                        throw new ValidationException($"El nombre del operador no debe exceder los {tipoProducto.MaxCaracteres} caracteres.");
-                    }
-                    if (tipoProducto.PermiteNumeroEconomico && (item.NumeroEconomico?.Length > tipoProducto.MaxCaracteres))
-                    {
-                        throw new ValidationException($"El número económico no debe exceder los {tipoProducto.MaxCaracteres} caracteres.");
-                    }
-                    if (tipoProducto.PermiteRuta && (item.Ruta?.Length > tipoProducto.MaxCaracteres))
-                    {
-                        throw new ValidationException($"La ruta no debe exceder los {tipoProducto.MaxCaracteres} caracteres.");
-                    }
+                     if (tipoProducto.PermiteNombre && (item.NombreOperador?.Length > tipoProducto.MaxCaracteres))
+                     {
+                         throw new ValidationException($"El nombre del operador no debe exceder los {tipoProducto.MaxCaracteres} caracteres.");
+                     }
+                     if (tipoProducto.PermiteRuta && (item.Ruta?.Length > tipoProducto.MaxCaracteres))
+                     {
+                         throw new ValidationException($"La ruta no debe exceder los {tipoProducto.MaxCaracteres} caracteres.");
+                     }
                 }
             }
 
@@ -59,7 +55,9 @@ namespace XA57_Proyecto.Application.Services
                 ModeloAutobusId = item.ModeloAutobusId,
                 LineaId         = item.LineaId,
                 NombreOperador  = item.NombreOperador ?? "",
-                NumeroEconomico = item.NumeroEconomico ?? "",
+                NumeroEconomico = item.NumeroSerie ?? "",
+                Color           = item.Color,
+                ColorHex        = item.ColorHex,
                 Ruta            = item.Ruta ?? "",
                 NotasEspeciales = item.NotasEspeciales ?? "",
                 Cantidad        = item.Cantidad,

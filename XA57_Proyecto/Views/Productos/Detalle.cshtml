@@ -1,7 +1,6 @@
 @model XA57_Proyecto.Domain.Entities.Producto
 @{
     ViewData["Title"] = Model.Nombre;
-    var tipo = Model.TipoProducto;
 }
 
 <div style="display: flex; gap: 40px; padding: 40px; max-width: 1100px; margin: 0 auto;">
@@ -10,15 +9,15 @@
          data-producto-id="@Model.Id"
          data-producto-nombre="@Model.Nombre"
          data-producto-imagen="@Model.ImagenUrl"
-         data-permite-nombre="@(tipo?.PermiteNombre.ToString().ToLower() ?? "true")"
-         data-permite-numero-economico="@(tipo?.PermiteNumeroEconomico.ToString().ToLower() ?? "true")"
-         data-permite-ruta="@(tipo?.PermiteRuta.ToString().ToLower() ?? "true")"
-         data-max-caracteres="@(tipo?.MaxCaracteres ?? 20)"
+         data-permite-nombre="@(Model.TipoProducto?.PermiteNombre.ToString().ToLower() ?? "true")"
+         data-permite-numero-economico="@(Model.TipoProducto?.PermiteNumeroEconomico.ToString().ToLower() ?? "true")"
+         data-permite-ruta="@(Model.TipoProducto?.PermiteRuta.ToString().ToLower() ?? "true")"
+         data-max-caracteres="@(Model.TipoProducto?.MaxCaracteres ?? 20)"
          style="display: flex; gap: 40px; width: 100%;">
     </div>
 
 </div>
 
 @section Scripts {
-    <script src="~/react/static/js/main.e292cae9.js"></script>
+    <script src="~/react/static/js/main.0cbc8b5f.js"></script>
 }
