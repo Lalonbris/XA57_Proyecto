@@ -53,7 +53,11 @@
 /* ─── Reset & Base ─── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { position: relative; min-height: 100%; }
+html {
+    position: relative;
+    min-height: 100%;
+    font-size: 103%; /* Aumenta el tamaño base de la fuente */
+}
 
 body {
     font-family: var(--ff-b);
@@ -920,3 +924,130 @@ a:hover { color: #fff !important; text-decoration: none !important; }
     color: var(--tx-2);
     margin-bottom: 32px;
 }
+
+/* ══════════════════════════════════════════
+   AUTH FORMS (Login, Register)
+══════════════════════════════════════════ */
+.xa57-auth-container {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 72px 0;
+}
+
+.xa57-auth-container .xa57-label {
+    text-align: center;
+}
+
+.xa57-auth-container .xa57-title {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 36px;
+}
+
+.xa57-form-group {
+    margin-bottom: 1.1rem;
+    position: relative;
+}
+
+.xa57-form-group .form-control {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-2);
+    color: var(--tx-0);
+    border-radius: var(--r-m);
+    padding: 11px 16px;
+    font-size: 0.9rem;
+    font-family: var(--ff-b);
+    outline: none;
+    transition: var(--t);
+    height: auto;
+}
+
+.xa57-form-group .form-control:focus {
+    border-color: var(--bd-3);
+    background: var(--bg-4);
+    box-shadow: none;
+}
+
+.xa57-form-group .form-control::placeholder {
+    color: var(--tx-3);
+}
+
+.xa57-form-group .form-label {
+    font-family: var(--ff-b);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--tx-1);
+    margin-bottom: 6px;
+    padding-left: 4px;
+}
+
+.xa57-form-group .text-danger {
+    font-size: 0.75rem;
+    margin-top: 6px;
+    padding-left: 4px;
+}
+
+/* ══════════════════════════════════════════
+   ACCOUNT MANAGEMENT
+══════════════════════════════════════════ */
+.xa57-manage-nav {
+    list-style: none;
+    padding-left: 0; /* Corrige el desfase del menú */
+    margin-bottom: 0; /* Elimina margen inferior por defecto */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-right: 1px solid var(--bd-1);
+    padding-right: 24px;
+}
+
+.xa57-manage-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Aumenta un poco el espacio entre ícono y texto */
+    color: var(--tx-2);
+    font-family: var(--ff-b);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 9px 12px;
+    border-radius: var(--r-s);
+    transition: var(--t);
+    width: 100%;
+}
+
+.xa57-manage-nav .nav-link .material-icons {
+    font-size: 18px;
+    color: var(--tx-3);
+    flex-shrink: 0; /* Evita que el ícono se encoja */
+}
+
+
+.xa57-manage-nav .nav-link:hover {
+    color: #fff;
+    background: var(--bg-3);
+}
+
+    .xa57-manage-nav .nav-link {
+        display: flex;
+        align-items: center; /* centra ícono y texto verticalmente */
+        gap: 12px;
+    }
+
+        .xa57-manage-nav .nav-link .material-icons {
+            width: 24px; /* ancho fijo */
+            text-align: center; /* centra el ícono en ese ancho */
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 2px; /* pequeño ajuste para que no se pegue al borde */
+        }
+
+
+
+
+.xa57-manage-nav .nav-link.active .material-icons {
+    color: var(--tx-1);
+}
+
+

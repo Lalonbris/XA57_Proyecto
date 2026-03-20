@@ -1,0 +1,65 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Crear Cuenta";
+}
+
+<div class="xa57-auth-container">
+    <div>
+        <span class="xa57-label">Registro</span>
+        <h1 class="xa57-title">Crea tu cuenta</h1>
+    </div>
+
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="xa57-form-group">
+                    <label asp-for="Input.Nombre" class="form-label"></label>
+                    <input asp-for="Input.Nombre" class="form-control" autocomplete="name" aria-required="true" />
+                    <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="xa57-form-group">
+                    <label asp-for="Input.Apellido" class="form-label"></label>
+                    <input asp-for="Input.Apellido" class="form-control" autocomplete="family-name" aria-required="true" />
+                    <span asp-validation-for="Input.Apellido" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="xa57-form-group">
+            <label asp-for="Input.Email" class="form-label"></label>
+            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+
+        <div class="xa57-form-group">
+            <label asp-for="Input.Password" class="form-label"></label>
+            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+
+        <div class="xa57-form-group">
+            <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <button id="registerSubmit" type="submit" class="w-100 btn-xa57 btn-xa57-primary mt-4">
+            Crear cuenta
+        </button>
+
+        <div class="text-center mt-4">
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="btn-xa57 btn-xa57-ghost">
+                ¿Ya tienes una cuenta? Inicia sesión
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

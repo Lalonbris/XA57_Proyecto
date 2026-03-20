@@ -1,0 +1,23 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="xa57-auth-container" style="max-width: 920px;">
+    <div>
+        <span class="xa57-label">Cuenta</span>
+        <h1 class="xa57-title mb-4">Gestiona tu cuenta</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

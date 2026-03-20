@@ -14,6 +14,27 @@ dotnet build
 
 The solution file is `XA57_Proyecto.sln`.
 
+### Frontend (React Client)
+
+The project includes a React-based frontend in the `XA57_Proyecto/configurador-client` directory. When making changes to the React components (e.g., `App.js`), you must compile the application and update the static files served by the .NET host.
+
+**Build Workflow:**
+
+1.  **Navigate to the client directory:**
+    ```bash
+    cd XA57_Proyecto/configurador-client
+    ```
+2.  **Run the build command:**
+    ```bash
+    npm run build
+    ```
+3.  **Copy the build artifacts:** The build generates a new set of static files in the `build/` directory. These must be copied to the .NET project's `wwwroot/react` directory.
+    ```bash
+    # Example using xcopy on Windows
+    xcopy build ..\\wwwroot\\react /E /H /I /Y
+    ```
+4.  **Update the script reference:** The build command generates a JavaScript file with a unique hash in its name (e.g., `main.xxxxxxx.js`). You must update the `<script>` tag in the relevant `.cshtml` file (e.g., `Views/Productos/Detalle.cshtml`) to point to the new filename.
+
 ### Linting
 
 There is no specific linter configured for this project. However, the project uses the default Roslyn analyzers that come with the .NET SDK. Pay attention to warnings and errors reported by the IDE and the build process.
@@ -153,3 +174,30 @@ namespace XA57_Proyecto.Domain.Entities
 - **Code Refinements**:
   - Fixed a nullable warning in `PedidoResultDto`.
 - **Build Verification**: Ensured the project builds successfully after all changes.
+
+### 2026-03-16: Phase 2 - Cart Functionality
+
+- **Cart Customization**:
+  - Added `Color` and `ColorHex` properties to the `Pedido` entity and `CarritoItemDto` to store product customization details.
+  - Created a database migration to apply the new fields to the `Pedidos` table.
+  - Updated `PedidoService` to map the new DTO properties to the entity.
+  - Modified the cart view (`Views/Carrito/Index.cshtml`) to display the selected color.
+- **Real-Time Cart Icon**:
+  - Implemented a global JavaScript function (`actualizarIconoCarrito`) in `_Layout.cshtml` to fetch the cart item count and update the header badge.
+  - Called this global function from the React component (`configurador-client/src/App.js`) and the Catalog view (`Views/Home/Catalogo.cshtml`) after adding a product to the cart.
+  - Corrected inconsistencies in the element ID for the cart badge.
+- **React Build Process**:
+  - Documented the frontend build workflow in this file.
+### 2026-03-20: Phase 3 - User Registration (CU-01)
+
+- **Scaffolding**: Generated the default ASP.NET Core Identity pages for `Register`, `Login`, and `Account Management`.
+- **User Model**: Extended the `ApplicationUser` entity to include `Nombre` and `Apellido` properties to capture more user details.
+- **UI/UX Redesign**:
+  - Completely redesigned and translated the `Register`, `Login`, and all `Manage Account` pages to match the project's custom look and feel (`xa57-*` design system).
+  - Implemented responsive and consistent forms for a professional user experience.
+- **Database Migration**: Created and applied a migration to add the new `Nombre` and `Apellido` columns to the `AspNetUsers` table.
+- **Integration**:
+  - Added the `_LoginPartial` view to the main layout to make authentication links accessible.
+  - Corrected several CSS issues to ensure proper alignment and typography across the new pages.
+- **Localization**: Translated all user-facing Identity validation messages and labels to Spanish.
+

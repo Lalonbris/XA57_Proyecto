@@ -1,0 +1,44 @@
+@page
+@model PersonalDataModel
+@{
+    ViewData["Title"] = "Datos Personales";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<h4 class="xa57-title" style="font-size:1.3rem;">@ViewData["Title"]</h4>
+
+<p class="text-xa57-muted">
+    Tu cuenta contiene datos personales que nos has proporcionado. Esta página te permite descargar o eliminar esos datos.
+</p>
+<p>
+    <strong class="text-xa57-silver">Eliminar estos datos eliminará permanentemente tu cuenta y no podrá ser recuperada.</strong>
+</p>
+
+<div class="d-flex flex-wrap gap-2 mt-4">
+    <form id="download-data" asp-page="DownloadPersonalData" method="post">
+        <button class="btn-xa57 btn-xa57-secondary" type="submit">
+            <i class="material-icons">download</i>
+            Descargar mis datos
+        </button>
+    </form>
+    <a id="delete" asp-page="DeletePersonalData" class="btn-xa57" style="background-color: var(--bg-red-dark); color: var(--text-red-light) !important; border:1px solid var(--border-red-dark);">
+        <i class="material-icons">delete_forever</i>
+        Eliminar cuenta
+    </a>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<style>
+    :root {
+        --bg-red-dark: #2a1215;
+        --text-red-light: #f87171;
+        --border-red-dark: #450a0a;
+    }
+    #delete:hover {
+        background-color: #3b0e14 !important;
+        border-color: #7f1d1d !important;
+        transform: translateY(-2px);
+    }
+</style>
+}
