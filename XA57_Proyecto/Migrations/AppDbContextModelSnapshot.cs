@@ -232,6 +232,116 @@ namespace XA57_Proyecto.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Carrito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("carritos");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("categorias");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.ItemCarrito", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer")
+                        .HasColumnName("cantidad");
+
+                    b.Property<int>("CarritoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("carrito_id");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("producto_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarritoId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("items_carrito");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.ItemOrden", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer")
+                        .HasColumnName("cantidad");
+
+                    b.Property<int>("OrdenId")
+                        .HasColumnType("integer")
+                        .HasColumnName("orden_id");
+
+                    b.Property<int?>("PersonalizacionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("producto_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdenId");
+
+                    b.HasIndex("PersonalizacionId");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("items_orden");
+                });
+
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Linea", b =>
                 {
                     b.Property<int>("Id")
@@ -296,6 +406,33 @@ namespace XA57_Proyecto.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("modelos_autobus");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Orden", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ordenes");
                 });
 
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Pedido", b =>
@@ -367,6 +504,34 @@ namespace XA57_Proyecto.Migrations
                     b.ToTable("Pedidos");
                 });
 
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.PersonalizacionProducto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("PrecioExtra")
+                        .HasColumnType("numeric")
+                        .HasColumnName("precio_extra");
+
+                    b.Property<string>("TipoOpcion")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tipo_opcion");
+
+                    b.Property<string>("ValorOpcion")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("valor_opcion");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("personalizaciones_producto");
+                });
+
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -380,9 +545,17 @@ namespace XA57_Proyecto.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("activo");
 
+                    b.Property<int?>("CategoriaId")
+                        .HasColumnType("integer")
+                        .HasColumnName("categoria_id");
+
                     b.Property<string>("Descripcion")
                         .HasColumnType("text")
                         .HasColumnName("descripcion");
+
+                    b.Property<bool>("EsPersonalizable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("es_personalizable");
 
                     b.Property<string>("ImagenUrl")
                         .HasColumnType("text")
@@ -397,11 +570,17 @@ namespace XA57_Proyecto.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("precio");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("integer")
+                        .HasColumnName("stock");
+
                     b.Property<int?>("TipoProductoId")
                         .HasColumnType("integer")
                         .HasColumnName("tipo_producto_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
 
                     b.HasIndex("TipoProductoId");
 
@@ -494,6 +673,50 @@ namespace XA57_Proyecto.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.ItemCarrito", b =>
+                {
+                    b.HasOne("XA57_Proyecto.Domain.Entities.Carrito", "Carrito")
+                        .WithMany("Items")
+                        .HasForeignKey("CarritoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("XA57_Proyecto.Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Carrito");
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.ItemOrden", b =>
+                {
+                    b.HasOne("XA57_Proyecto.Domain.Entities.Orden", "Orden")
+                        .WithMany("Items")
+                        .HasForeignKey("OrdenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("XA57_Proyecto.Domain.Entities.PersonalizacionProducto", "Personalizacion")
+                        .WithMany("ItemsOrden")
+                        .HasForeignKey("PersonalizacionId");
+
+                    b.HasOne("XA57_Proyecto.Domain.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Orden");
+
+                    b.Navigation("Personalizacion");
+
+                    b.Navigation("Producto");
+                });
+
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Pedido", b =>
                 {
                     b.HasOne("XA57_Proyecto.Domain.Entities.Linea", "Linea")
@@ -519,11 +742,32 @@ namespace XA57_Proyecto.Migrations
 
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Producto", b =>
                 {
+                    b.HasOne("XA57_Proyecto.Domain.Entities.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId");
+
                     b.HasOne("XA57_Proyecto.Domain.Entities.TipoProducto", "TipoProducto")
                         .WithMany()
                         .HasForeignKey("TipoProductoId");
 
+                    b.Navigation("Categoria");
+
                     b.Navigation("TipoProducto");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Carrito", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Orden", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("XA57_Proyecto.Domain.Entities.PersonalizacionProducto", b =>
+                {
+                    b.Navigation("ItemsOrden");
                 });
 #pragma warning restore 612, 618
         }

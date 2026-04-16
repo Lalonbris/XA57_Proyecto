@@ -5,9 +5,9 @@ namespace XA57_Proyecto.Application.Interfaces
 {
     public interface IPedidoService
     {
-        Task<PedidoResultDto> AgregarAsync(CarritoItemDto item);
-        Task<List<Pedido>> ObtenerCarritoAsync();
-        Task EliminarItemAsync(int id);
-        Task<int> ContarItemsAsync();
+        Task<PedidoResultDto> AddAsync(CarritoItemDto item);
+        Task<IReadOnlyList<Pedido>> GetAllAsync();
+        Task DeleteAsync(int id);
+        Task<int> CountAsync();
     }
 }

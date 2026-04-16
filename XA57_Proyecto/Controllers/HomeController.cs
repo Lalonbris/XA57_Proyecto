@@ -28,7 +28,7 @@ namespace XA57_Proyecto.Controllers
 
         public async Task<IActionResult> Catalogo()
         {
-            var productos = await _productoService.ObtenerTodosAsync();
+            var productos = await _productoService.GetAllAsync();
             return View(productos);
         }
 

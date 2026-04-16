@@ -25,7 +25,7 @@ namespace XA57_Proyecto.Controllers
         [HttpGet("modelos")]
         public async Task<IActionResult> GetModelos()
         {
-            var modelos = await _modeloService.ObtenerActivosAsync();
+            var modelos = await _modeloService.GetAllActiveAsync();
             return Ok(modelos.Select(m => new { m.Id, m.Nombre, m.Fabricante }));
         }
 
@@ -33,7 +33,7 @@ namespace XA57_Proyecto.Controllers
         [HttpGet("lineas")]
         public async Task<IActionResult> GetLineas()
         {
-            var lineas = await _lineaService.ObtenerActivasAsync();
+            var lineas = await _lineaService.GetAllActiveAsync();
             return Ok(lineas.Select(l => new
             {
                 l.Id,
@@ -49,7 +49,7 @@ namespace XA57_Proyecto.Controllers
         [HttpGet("producto/{id}")]
         public async Task<IActionResult> GetProducto(int id)
         {
-            var producto = await _productoService.ObtenerPorIdAsync(id);
+            var producto = await _productoService.GetByIdAsync(id);
             if (producto == null) return NotFound();
 
             return Ok(new

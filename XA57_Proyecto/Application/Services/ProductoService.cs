@@ -1,7 +1,7 @@
 using XA57_Proyecto.Application.Exceptions;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Domain.Entities;
-using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
+using XA57_Proyecto.Domain.Interfaces;
 
 namespace XA57_Proyecto.Application.Services
 {
@@ -16,11 +16,11 @@ namespace XA57_Proyecto.Application.Services
             _tipoProductoRepo = tipoProductoRepo;
         }
 
-        public Task<List<Producto>> ObtenerTodosAsync() => _repo.ObtenerTodosAsync();
+        public Task<IReadOnlyList<Producto>> GetAllAsync() => _repo.GetAllAsync();
 
-        public Task<Producto?> ObtenerPorIdAsync(int id) => _repo.ObtenerPorIdAsync(id);
+        public Task<Producto?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
 
-        public async Task<Producto> AgregarAsync(Producto producto)
+        public async Task<Producto> AddAsync(Producto producto)
         {
             if (string.IsNullOrWhiteSpace(producto.Nombre))
             {
@@ -39,19 +39,19 @@ namespace XA57_Proyecto.Application.Services
 
             if (producto.TipoProductoId.HasValue)
             {
-                var tipoProducto = await _tipoProductoRepo.ObtenerPorIdAsync(producto.TipoProductoId.Value);
+                var tipoProducto = await _tipoProductoRepo.GetByIdAsync(producto.TipoProductoId.Value);
                 if (tipoProducto == null)
                 {
                     throw new ValidationException("El tipo de producto especificado no es válido.");
                 }
             }
 
-            return await _repo.AgregarAsync(producto);
+            return await _repo.AddAsync(producto);
         }
 
-        public async Task ActualizarAsync(Producto producto)
+        public async Task UpdateAsync(Producto producto)
         {
-            var productoExistente = await _repo.ObtenerPorIdAsync(producto.Id);
+            var productoExistente = await _repo.GetByIdAsync(producto.Id);
             if (productoExistente == null)
             {
                 throw new ValidationException("El producto que intenta actualizar no existe.");
@@ -74,14 +74,14 @@ namespace XA57_Proyecto.Application.Services
 
             if (producto.TipoProductoId.HasValue)
             {
-                var tipoProducto = await _tipoProductoRepo.ObtenerPorIdAsync(producto.TipoProductoId.Value);
+                var tipoProducto = await _tipoProductoRepo.GetByIdAsync(producto.TipoProductoId.Value);
                 if (tipoProducto == null)
                 {
                     throw new ValidationException("El tipo de producto especificado no es válido.");
                 }
             }
 
-            await _repo.ActualizarAsync(producto);
+            await _repo.UpdateAsync(producto);
         }
     }
 }

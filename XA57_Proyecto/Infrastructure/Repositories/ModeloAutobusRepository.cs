@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using XA57_Proyecto.Domain.Entities;
+using XA57_Proyecto.Domain.Interfaces;
 using XA57_Proyecto.Infrastructure.Data;
-using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
 
 namespace XA57_Proyecto.Infrastructure.Repositories
 {
@@ -14,10 +14,32 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task<List<ModeloAutobus>> ObtenerActivosAsync() =>
-            _context.ModelosAutobus.Where(m => m.Activo).OrderBy(m => m.Nombre).ToListAsync();
+        public async Task<IReadOnlyList<ModeloAutobus>> GetAllActiveAsync() =>
+            await _context.ModelosAutobus
+                .Where(m => m.Activo)
+                .OrderBy(m => m.Nombre)
+                .ToListAsync();
 
-        public async Task<ModeloAutobus?> ObtenerPorIdAsync(int id) =>
+        public async Task<ModeloAutobus?> GetByIdAsync(int id) =>
             await _context.ModelosAutobus.FindAsync(id);
+
+        public async Task<ModeloAutobus> AddAsync(ModeloAutobus modelo)
+        {
+            _context.ModelosAutobus.Add(modelo);
+            await _context.SaveChangesAsync();
+            return modelo;
+        }
+
+        public async Task UpdateAsync(ModeloAutobus modelo)
+        {
+            _context.Entry(modelo).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(ModeloAutobus modelo)
+        {
+            _context.ModelosAutobus.Remove(modelo);
+            await _context.SaveChangesAsync();
+        }
     }
 }

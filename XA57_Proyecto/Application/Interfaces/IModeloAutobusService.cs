@@ -4,7 +4,7 @@ namespace XA57_Proyecto.Application.Interfaces
 {
     public interface IModeloAutobusService
     {
-        Task<List<ModeloAutobus>> ObtenerActivosAsync();
-        Task<ModeloAutobus?> ObtenerPorIdAsync(int id);
+        Task<IReadOnlyList<ModeloAutobus>> GetAllActiveAsync();
+        Task<ModeloAutobus?> GetByIdAsync(int id);
     }
 }

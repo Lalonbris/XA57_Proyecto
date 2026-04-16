@@ -2,7 +2,7 @@ using XA57_Proyecto.Application.DTOs;
 using XA57_Proyecto.Application.Exceptions;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Domain.Entities;
-using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
+using XA57_Proyecto.Domain.Interfaces;
 
 namespace XA57_Proyecto.Application.Services
 {
@@ -20,14 +20,14 @@ namespace XA57_Proyecto.Application.Services
             _tipoProductoRepo = tipoProductoRepo;
         }
 
-        public async Task<PedidoResultDto> AgregarAsync(CarritoItemDto item)
+        public async Task<PedidoResultDto> AddAsync(CarritoItemDto item)
         {
             if (item.Cantidad <= 0)
             {
                 throw new ValidationException("La cantidad debe ser mayor a cero.");
             }
 
-            var producto = await _productoRepo.ObtenerPorIdAsync(item.ProductoId);
+            var producto = await _productoRepo.GetByIdAsync(item.ProductoId);
             if (producto == null || !producto.Activo)
             {
                 throw new ValidationException("El producto no existe o no está disponible.");
@@ -35,7 +35,7 @@ namespace XA57_Proyecto.Application.Services
 
             if (producto.TipoProductoId.HasValue)
             {
-                var tipoProducto = await _tipoProductoRepo.ObtenerPorIdAsync(producto.TipoProductoId.Value);
+                var tipoProducto = await _tipoProductoRepo.GetByIdAsync(producto.TipoProductoId.Value);
                 if (tipoProducto != null)
                 {
                      if (tipoProducto.PermiteNombre && (item.NombreOperador?.Length > tipoProducto.MaxCaracteres))
@@ -56,8 +56,8 @@ namespace XA57_Proyecto.Application.Services
                 LineaId         = item.LineaId,
                 NombreOperador  = item.NombreOperador ?? "",
                 NumeroEconomico = item.NumeroSerie ?? "",
-                Color           = item.Color,
-                ColorHex        = item.ColorHex,
+                Color           = item.Color ?? "",
+                ColorHex        = item.ColorHex ?? "",
                 Ruta            = item.Ruta ?? "",
                 NotasEspeciales = item.NotasEspeciales ?? "",
                 Cantidad        = item.Cantidad,
@@ -65,7 +65,7 @@ namespace XA57_Proyecto.Application.Services
                 FechaCreacion   = DateTime.UtcNow
             };
 
-            await _pedidoRepo.AgregarAsync(pedido);
+            await _pedidoRepo.AddAsync(pedido);
 
             return new PedidoResultDto
             {
@@ -74,10 +74,10 @@ namespace XA57_Proyecto.Application.Services
             };
         }
 
-        public Task<List<Pedido>> ObtenerCarritoAsync() => _pedidoRepo.ObtenerConProductosAsync();
+        public Task<IReadOnlyList<Pedido>> GetAllAsync() => _pedidoRepo.GetAllWithProductsAsync();
 
-        public Task EliminarItemAsync(int id) => _pedidoRepo.EliminarAsync(id);
+        public Task DeleteAsync(int id) => _pedidoRepo.DeleteAsync(id);
 
-        public Task<int> ContarItemsAsync() => _pedidoRepo.ContarAsync();
+        public Task<int> CountAsync() => _pedidoRepo.CountAsync();
     }
 }

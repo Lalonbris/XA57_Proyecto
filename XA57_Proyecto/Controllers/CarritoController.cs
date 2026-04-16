@@ -18,8 +18,8 @@ namespace XA57_Proyecto.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            var items = await _pedidoService.ObtenerCarritoAsync();
-            var viewModel = new CarritoViewModel { Items = items };
+            var items = await _pedidoService.GetAllAsync();
+            var viewModel = new CarritoViewModel { Items = items.ToList() };
             return View(viewModel);
         }
 
@@ -29,21 +29,21 @@ namespace XA57_Proyecto.Controllers
             if (item == null || item.ProductoId == 0)
                 return BadRequest(new { mensaje = "Datos inválidos." });
 
-            var resultado = await _pedidoService.AgregarAsync(item);
+            var resultado = await _pedidoService.AddAsync(item);
             return Ok(new { mensaje = resultado.Mensaje, pedidoId = resultado.PedidoId });
         }
 
         [HttpPost("Eliminar/{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
-            await _pedidoService.EliminarItemAsync(id);
+            await _pedidoService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet("Cantidad")]
         public async Task<IActionResult> Cantidad()
         {
-            var count = await _pedidoService.ContarItemsAsync();
+            var count = await _pedidoService.CountAsync();
             return Ok(count);
         }
     }

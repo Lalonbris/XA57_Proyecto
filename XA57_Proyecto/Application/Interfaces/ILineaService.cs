@@ -4,7 +4,7 @@ namespace XA57_Proyecto.Application.Interfaces
 {
     public interface ILineaService
     {
-        Task<List<Linea>> ObtenerActivasAsync();
-        Task<Linea?> ObtenerPorIdAsync(int id);
+        Task<IReadOnlyList<Linea>> GetAllActiveAsync();
+        Task<Linea?> GetByIdAsync(int id);
     }
 }

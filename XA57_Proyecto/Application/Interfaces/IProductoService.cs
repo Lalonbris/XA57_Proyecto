@@ -4,9 +4,9 @@ namespace XA57_Proyecto.Application.Interfaces
 {
     public interface IProductoService
     {
-        Task<List<Producto>> ObtenerTodosAsync();
-        Task<Producto?> ObtenerPorIdAsync(int id);
-        Task<Producto> AgregarAsync(Producto producto);
-        Task ActualizarAsync(Producto producto);
+        Task<IReadOnlyList<Producto>> GetAllAsync();
+        Task<Producto?> GetByIdAsync(int id);
+        Task<Producto> AddAsync(Producto producto);
+        Task UpdateAsync(Producto producto);
     }
 }

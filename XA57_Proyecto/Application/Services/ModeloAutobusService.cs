@@ -1,6 +1,6 @@
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Domain.Entities;
-using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
+using XA57_Proyecto.Domain.Interfaces;
 
 namespace XA57_Proyecto.Application.Services
 {
@@ -13,8 +13,8 @@ namespace XA57_Proyecto.Application.Services
             _repo = repo;
         }
 
-        public Task<List<ModeloAutobus>> ObtenerActivosAsync() => _repo.ObtenerActivosAsync();
+        public Task<IReadOnlyList<ModeloAutobus>> GetAllActiveAsync() => _repo.GetAllActiveAsync();
 
-        public Task<ModeloAutobus?> ObtenerPorIdAsync(int id) => _repo.ObtenerPorIdAsync(id);
+        public Task<ModeloAutobus?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
     }
 }

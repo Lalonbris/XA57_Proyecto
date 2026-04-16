@@ -19,7 +19,7 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("linea_id")]
         public int? LineaId { get; set; }
 
-        // Campos de personalización (Spec Complementaria)
+        // Campos de personalización (almacenados directamente en Pedido para mostrar en carrito)
         [Column("nombre_operador")]
         public string? NombreOperador { get; set; }
 
@@ -47,8 +47,13 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("fecha_creacion")]
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        public Producto? Producto { get; set; }
-        public ModeloAutobus? ModeloAutobus { get; set; }
-        public Linea? Linea { get; set; }
+        // Navigation properties
+        public virtual Producto? Producto { get; set; }
+        public virtual ModeloAutobus? ModeloAutobus { get; set; }
+        public virtual Linea? Linea { get; set; }
+        // Personalizaciones will be handled via a separate entity (e.g., PedidoPersonalizacion) if needed
+        // For simplicity, we keep the denormalized fields as per spec; personalization options are defined via PersonalizacionProducto
+        // and linked to Pedido via a join table if we need to track which options were selected.
+        // However spec shows Pedido has these fields directly, so we keep them.
     }
 }

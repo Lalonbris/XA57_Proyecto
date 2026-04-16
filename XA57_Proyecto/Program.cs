@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Application.Services;
 using XA57_Proyecto.Domain.Entities;
+using XA57_Proyecto.Domain.Interfaces;
 using XA57_Proyecto.Infrastructure.Data;
 using XA57_Proyecto.Infrastructure.Repositories;
-using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +16,20 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
-// Infrastructure
+// Infrastructure - Repositories
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<ILineaRepository, LineaRepository>();
 builder.Services.AddScoped<IModeloAutobusRepository, ModeloAutobusRepository>();
 builder.Services.AddScoped<ITipoProductoRepository, TipoProductoRepository>();
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
+builder.Services.AddScoped<IItemCarritoRepository, ItemCarritoRepository>();
+builder.Services.AddScoped<IOrdenRepository, OrdenRepository>();
+builder.Services.AddScoped<IItemOrdenRepository, ItemOrdenRepository>();
+builder.Services.AddScoped<IPersonalizacionProductoRepository, PersonalizacionProductoRepository>();
 
-// Application
+// Application - Services
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<ILineaService, LineaService>();
@@ -83,4 +89,3 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
-

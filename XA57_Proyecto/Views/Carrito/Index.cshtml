@@ -65,14 +65,14 @@
                                      <span class="xa57-cart-item__meta-key">No. Económico</span>#@item.NumeroEconomico
                                  </span>
                              }
-                            @if (!string.IsNullOrWhiteSpace(item.Color))
-                            {
-                                <span>
-                                    <span class="xa57-cart-item__meta-key">Color</span>
-                                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @item.ColorHex; margin-right: 5px; vertical-align: middle;"></span>
-                                    @item.Color
-                                </span>
-                            }
+                             @if (!string.IsNullOrWhiteSpace(item.Color))
+                             {
+                                 <span>
+                                     <span class="xa57-cart-item__meta-key">Color</span>
+                                     <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @item.ColorHex; margin-right: 5px; vertical-align: middle;"></span>
+                                     @item.Color
+                                 </span>
+                             }
                              @if (!string.IsNullOrWhiteSpace(item.Ruta))
                              {
                                  <span>
