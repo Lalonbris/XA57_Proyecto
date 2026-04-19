@@ -1,3 +1,5 @@
+@model List<XA57_Proyecto.Domain.Entities.Producto>
+
 @{
     ViewData["Title"] = "Inicio";
 }
@@ -56,7 +58,7 @@
                 <span class="xa57-cat-card__num">01</span>
                 <div class="xa57-cat-card__body">
                     <h3 class="xa57-cat-card__title">Plushies</h3>
-                    <a href="#" class="xa57-cat-card__link">
+                    <a asp-controller="Home" asp-action="CatalogoPorTipo" asp-route-tipo="4" class="xa57-cat-card__link">
                         Shop Plushies
                         <i class="material-icons">arrow_forward</i>
                     </a>
@@ -70,7 +72,7 @@
                 <span class="xa57-cat-card__num">02</span>
                 <div class="xa57-cat-card__body">
                     <h3 class="xa57-cat-card__title">Comfort Gear</h3>
-                    <a href="#" class="xa57-cat-card__link">
+                    <a asp-controller="Home" asp-action="CatalogoPorTipo" asp-route-tipo="5" class="xa57-cat-card__link">
                         Shop Comfort
                         <i class="material-icons">arrow_forward</i>
                     </a>
@@ -84,7 +86,7 @@
                 <span class="xa57-cat-card__num">03</span>
                 <div class="xa57-cat-card__body">
                     <h3 class="xa57-cat-card__title">Accessories</h3>
-                    <a href="#" class="xa57-cat-card__link">
+                    <a asp-controller="Home" asp-action="CatalogoPorTipo" asp-route-tipo="6" class="xa57-cat-card__link">
                         Shop Accessories
                         <i class="material-icons">arrow_forward</i>
                     </a>
@@ -101,25 +103,36 @@
             <span class="xa57-label">Novedades</span>
             <h3 class="xa57-title mb-0" style="font-size: 1.6rem;">Fresh Off The Lot</h3>
         </div>
-        <a href="#" class="btn-xa57 btn-xa57-ghost" style="font-size:0.78rem;">
+        <a asp-controller="Home" asp-action="Catalogo" class="btn-xa57 btn-xa57-ghost" style="font-size:0.78rem;">
             Ver todo &rarr;
         </a>
     </div>
 
-    <div class="row g-4">
-        <div class="col-6 col-lg-3">
-            <div class="xa57-product-thumb__img">Sin imagen</div>
-            <p class="xa57-product-thumb__name">XA57 Metal Keychain</p>
-            <p class="xa57-product-thumb__desc">Die-cast miniature replica</p>
-            <p class="xa57-product-thumb__price">$12.99</p>
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var producto in Model)
+            {
+                <div class="col-6 col-lg-3">
+                    <a asp-controller="Productos" asp-action="Detalle" asp-route-id="@producto.Id" class="xa57-product-thumb__link">
+                        <div class="xa57-product-thumb__img">
+                            <img src="@producto.ImagenUrl" alt="@producto.Nombre" onerror="this.src='/images/placeholder.png'" />
+                        </div>
+                        <p class="xa57-product-thumb__name">@producto.Nombre</p>
+                        <p class="xa57-product-thumb__desc">@producto.Descripcion</p>
+                        <p class="xa57-product-thumb__price">$@producto.Precio</p>
+                    </a>
+                </div>
+            }
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="xa57-product-thumb__img">Sin imagen</div>
-            <p class="xa57-product-thumb__name">Jumbo Bus Pillow</p>
-            <p class="xa57-product-thumb__desc">Ultra-soft velvet finish</p>
-            <p class="xa57-product-thumb__price">$34.99</p>
+    }
+    else
+    {
+        <div class="xa57-empty">
+            <i class="material-icons xa57-empty__icon">inventory_2</i>
+            <p class="xa57-empty__text">No hay productos disponibles.</p>
         </div>
-    </div>
+    }
 </section>
 
 <!-- ══ PERSONALIZATION STUDIO ══ -->

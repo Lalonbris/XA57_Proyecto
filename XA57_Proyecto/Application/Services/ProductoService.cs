@@ -18,6 +18,8 @@ namespace XA57_Proyecto.Application.Services
 
         public Task<List<Producto>> ObtenerTodosAsync() => _repo.ObtenerTodosAsync();
 
+        public Task<List<Producto>> ObtenerPorTipoAsync(int tipoProductoId) => _repo.ObtenerPorTipoAsync(tipoProductoId);
+
         public Task<Producto?> ObtenerPorIdAsync(int id) => _repo.ObtenerPorIdAsync(id);
 
         public async Task<Producto> AgregarAsync(Producto producto)

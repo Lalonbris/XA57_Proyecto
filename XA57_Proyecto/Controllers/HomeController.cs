@@ -16,9 +16,22 @@ namespace XA57_Proyecto.Controllers
             _productoService = productoService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var productosRecientes = await _productoService.ObtenerTodosAsync();
+            return View(productosRecientes.OrderByDescending(p => p.Id).Take(4).ToList());
+        }
+
+        public async Task<IActionResult> CatalogoPorTipo(int tipo)
+        {
+            List<Domain.Entities.Producto> resultado;
+            if (tipo <= 0)
+            {
+                resultado = await _productoService.ObtenerTodosAsync();
+                return View("Catalogo", resultado);
+            }
+            resultado = await _productoService.ObtenerPorTipoAsync(tipo);
+            return View("Catalogo", resultado);
         }
 
         public IActionResult Privacy()

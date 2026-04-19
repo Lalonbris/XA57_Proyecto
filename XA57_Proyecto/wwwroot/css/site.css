@@ -580,6 +580,16 @@ a:hover { color: #fff !important; text-decoration: none !important; }
     margin: 0;
 }
 
+a.xa57-product-thumb__link {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+}
+
+a.xa57-product-thumb__link:hover .xa57-product-thumb__name {
+    color: var(--accent);
+}
+
 /* ══════════════════════════════════════════
    PERSONALIZATION STUDIO BANNER
 ══════════════════════════════════════════ */

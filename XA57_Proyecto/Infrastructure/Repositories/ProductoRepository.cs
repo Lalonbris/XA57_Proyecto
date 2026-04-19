@@ -20,6 +20,12 @@ namespace XA57_Proyecto.Infrastructure.Repositories
                 .Include(p => p.TipoProducto)
                 .ToListAsync();
 
+        public Task<List<Producto>> ObtenerPorTipoAsync(int tipoProductoId) =>
+            _context.Productos
+                .Where(p => p.Activo && p.TipoProductoId == tipoProductoId)
+                .Include(p => p.TipoProducto)
+                .ToListAsync();
+
         public async Task<Producto?> ObtenerPorIdAsync(int id) =>
             await _context.Productos
                 .Include(p => p.TipoProducto)

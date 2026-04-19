@@ -201,6 +201,18 @@ INSERT INTO "tipos_producto" ("max_caracteres", "nombre", "permite_nombre", "per
 SELECT 100, 'Chaqueta', true, true, true
 WHERE NOT EXISTS (SELECT 1 FROM "tipos_producto" WHERE "nombre" = 'Chaqueta');
 
+INSERT INTO "tipos_producto" ("max_caracteres", "nombre", "permite_nombre", "permite_numero_economico", "permite_ruta")
+SELECT 30, 'Peluche', true, false, false
+WHERE NOT EXISTS (SELECT 1 FROM "tipos_producto" WHERE "nombre" = 'Peluche');
+
+INSERT INTO "tipos_producto" ("max_caracteres", "nombre", "permite_nombre", "permite_numero_economico", "permite_ruta")
+SELECT 20, 'Comfort Gear', true, false, false
+WHERE NOT EXISTS (SELECT 1 FROM "tipos_producto" WHERE "nombre" = 'Comfort Gear');
+
+INSERT INTO "tipos_producto" ("max_caracteres", "nombre", "permite_nombre", "permite_numero_economico", "permite_ruta")
+SELECT 25, 'Accesorio', true, false, false
+WHERE NOT EXISTS (SELECT 1 FROM "tipos_producto" WHERE "nombre" = 'Accesorio');
+
 -- =============================================
 -- Mensaje de finalización
 -- =============================================
