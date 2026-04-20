@@ -6,6 +6,8 @@ namespace XA57_Proyecto.Infrastructure.Repositories.Interfaces
     {
         Task AgregarAsync(Pedido pedido);
         Task<List<Pedido>> ObtenerConProductosAsync();
+        Task<Pedido?> ObtenerPorIdAsync(int id);
+        Task ActualizarAsync(Pedido pedido);
         Task EliminarAsync(int id);
         Task<int> ContarAsync();
     }

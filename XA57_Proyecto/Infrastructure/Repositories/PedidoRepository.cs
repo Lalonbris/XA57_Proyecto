@@ -37,6 +37,14 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             }
         }
 
+        public async Task<Pedido?> ObtenerPorIdAsync(int id) => await _context.Pedidos.FindAsync(id);
+
+        public async Task ActualizarAsync(Pedido pedido)
+        {
+            _context.Pedidos.Update(pedido);
+            await _context.SaveChangesAsync();
+        }
+
         public Task<int> ContarAsync() => _context.Pedidos.CountAsync();
     }
 }

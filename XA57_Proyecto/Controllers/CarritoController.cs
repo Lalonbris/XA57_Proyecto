@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XA57_Proyecto.Application.DTOs;
 using XA57_Proyecto.Application.Interfaces;
@@ -6,6 +7,7 @@ using XA57_Proyecto.ViewModels;
 namespace XA57_Proyecto.Controllers
 {
     [Route("Carrito")]
+    [Authorize]
     public class CarritoController : Controller
     {
         private readonly IPedidoService _pedidoService;
