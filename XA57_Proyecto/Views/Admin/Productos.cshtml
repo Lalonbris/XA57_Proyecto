@@ -1,0 +1,150 @@
+@model IEnumerable<XA57_Proyecto.Domain.Entities.Producto>
+@{
+    ViewData["Title"] = "Administrar Productos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Productos</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productoModal" onclick="limpiarFormulario()">
+            <i class="material-icons">add</i> Nuevo Producto
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover" id="productosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in Model)
+                    {
+                        <tr>
+                            <td>@producto.Id</td>
+                            <td>@producto.Nombre</td>
+                            <td>$@producto.Precio.ToString("N2")</td>
+                            <td>@producto.TipoProducto?.Nombre</td>
+                            <td>
+                                <span class="badge bg-success@(producto.Activo ? "" : " bg-secondary")">
+                                    @(producto.Activo ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editarProducto(@producto.Id)">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(@producto.Id)">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="productoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="productoForm">
+                <div class="modal-body">
+                    <input type="hidden" id="productoId" name="Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="productoNombre" name="Nombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="productoDescripcion" name="Descripcion"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="productoPrecio" name="Precio" step="0.01" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Imagen URL</label>
+                        <input type="text" class="form-control" id="productoImagenUrl" name="ImagenUrl" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Producto</label>
+                        <select class="form-select" id="productoTipoProductoId" name="TipoProductoId">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="productoActivo" name="Activo" checked />
+                            <label class="form-check-label">Activo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function limpiarFormulario() {
+        document.getElementById('productoForm').reset();
+        document.getElementById('productoId').value = '0';
+    }
+    
+    async function editarProducto(id) {
+        const response = await fetch(`/Admin/ProductoDetalle?id=${id}`);
+        const producto = await response.json();
+        
+        document.getElementById('productoId').value = producto.id;
+        document.getElementById('productoNombre').value = producto.nombre;
+        document.getElementById('productoDescripcion').value = producto.descripcion || '';
+        document.getElementById('productoPrecio').value = producto.precio;
+        document.getElementById('productoImagenUrl').value = producto.imagenUrl || '';
+        document.getElementById('productoActivo').checked = producto.activo;
+        
+        const modal = new bootstrap.Modal(document.getElementById('productoModal'));
+        modal.show();
+    }
+    
+    async function eliminarProducto(id) {
+        if (confirm('¿Está seguro de eliminar este producto?')) {
+            await fetch(`/Admin/EliminarProducto?id=${id}`, { method: 'DELETE' });
+            location.reload();
+        }
+    }
+    
+    document.getElementById('productoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('productoId').value;
+        const producto = {
+            id: parseInt(id) || 0,
+            nombre: document.getElementById('productoNombre').value,
+            descripcion: document.getElementById('productoDescripcion').value,
+            precio: parseFloat(document.getElementById('productoPrecio').value),
+            imagenUrl: document.getElementById('productoImagenUrl').value,
+            activo: document.getElementById('productoActivo').checked
+        };
+        
+        const url = id == '0' ? '/Admin/CrearProducto' : `/Admin/EditarProducto?id=${id}`;
+        const method = id == '0' ? 'POST' : 'PUT';
+        
+        await fetch(url, { method, body: JSON.stringify(producto) });
+        location.reload();
+    });
+</script>

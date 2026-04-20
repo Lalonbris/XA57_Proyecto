@@ -9,5 +9,8 @@ namespace XA57_Proyecto.Application.Interfaces
         Task<List<Pedido>> ObtenerCarritoAsync();
         Task EliminarItemAsync(int id);
         Task<int> ContarItemsAsync();
+        Task<List<Pedido>> ObtenerTodosAsync();
+        Task<Pedido?> ObtenerPorIdAsync(int id);
+        Task ActualizarEstadoAsync(int id, string estado);
     }
 }

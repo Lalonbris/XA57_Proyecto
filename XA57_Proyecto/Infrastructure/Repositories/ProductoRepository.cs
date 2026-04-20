@@ -43,5 +43,15 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             _context.Entry(producto).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+
+        public async Task EliminarAsync(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto != null)
+            {
+                producto.Activo = false;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

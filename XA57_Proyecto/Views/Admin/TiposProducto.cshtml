@@ -1,0 +1,146 @@
+@model IEnumerable<XA57_Proyecto.Domain.Entities.TipoProducto>
+@{
+    ViewData["Title"] = "Administrar Tipos de Producto";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Tipos de Producto</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tipoModal" onclick="limpiarFormulario()">
+            <i class="material-icons">add</i> Nuevo Tipo
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Máx. Caracteres</th>
+                        <th>Permite Nombre</th>
+                        <th>Permite # Eco</th>
+                        <th>Permite Ruta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tipo in Model)
+                    {
+                        <tr>
+                            <td>@tipo.Id</td>
+                            <td>@tipo.Nombre</td>
+                            <td>@tipo.MaxCaracteres</td>
+                            <td>@(tipo.PermiteNombre ? "Sí" : "No")</td>
+                            <td>@(tipo.PermiteNumeroEconomico ? "Sí" : "No")</td>
+                            <td>@(tipo.PermiteRuta ? "Sí" : "No")</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editarTipo(@tipo.Id)">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarTipo(@tipo.Id)">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tipoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Tipo de Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="tipoForm">
+                <div class="modal-body">
+                    <input type="hidden" id="tipoId" name="Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="tipoNombre" name="Nombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Máximo de Caracteres</label>
+                        <input type="number" class="form-control" id="tipoMaxCaracteres" name="MaxCaracteres" value="20" />
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="tipoPermiteNombre" name="PermiteNombre" checked />
+                            <label class="form-check-label">Permite Nombre</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="tipoPermiteNumeroEconomico" name="PermiteNumeroEconomico" checked />
+                            <label class="form-check-label">Permite Número Económico</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="tipoPermiteRuta" name="PermiteRuta" checked />
+                            <label class="form-check-label">Permite Ruta</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function limpiarFormulario() {
+        document.getElementById('tipoForm').reset();
+        document.getElementById('tipoId').value = '0';
+    }
+    
+    async function editarTipo(id) {
+        const response = await fetch(`/Admin/TipoDetalle?id=${id}`);
+        const tipo = await response.json();
+        
+        document.getElementById('tipoId').value = tipo.id;
+        document.getElementById('tipoNombre').value = tipo.nombre;
+        document.getElementById('tipoMaxCaracteres').value = tipo.maxCaracteres;
+        document.getElementById('tipoPermiteNombre').checked = tipo.permiteNombre;
+        document.getElementById('tipoPermiteNumeroEconomico').checked = tipo.permiteNumeroEconomico;
+        document.getElementById('tipoPermiteRuta').checked = tipo.permiteRuta;
+        
+        const modal = new bootstrap.Modal(document.getElementById('tipoModal'));
+        modal.show();
+    }
+    
+    async function eliminarTipo(id) {
+        if (confirm('¿Está seguro de eliminar este tipo?')) {
+            await fetch(`/Admin/EliminarTipoProducto?id=${id}`, { method: 'DELETE' });
+            location.reload();
+        }
+    }
+    
+    document.getElementById('tipoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('tipoId').value;
+        const tipo = {
+            id: parseInt(id) || 0,
+            nombre: document.getElementById('tipoNombre').value,
+            maxCaracteres: parseInt(document.getElementById('tipoMaxCaracteres').value),
+            permiteNombre: document.getElementById('tipoPermiteNombre').checked,
+            permiteNumeroEconomico: document.getElementById('tipoPermiteNumeroEconomico').checked,
+            permiteRuta: document.getElementById('tipoPermiteRuta').checked
+        };
+        
+        const url = id == '0' ? '/Admin/CrearTipoProducto' : `/Admin/EditarTipoProducto?id=${id}`;
+        const method = id == '0' ? 'POST' : 'PUT';
+        
+        await fetch(url, { method, body: JSON.stringify(tipo) });
+        location.reload();
+    });
+</script>

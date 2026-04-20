@@ -1,0 +1,154 @@
+@model IEnumerable<XA57_Proyecto.Domain.Entities.ApplicationUser>
+@{
+    ViewData["Title"] = "Administrar Usuarios";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Usuarios</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#usuarioModal" onclick="limpiarFormulario()">
+            <i class="material-icons">person_add</i> Nuevo Usuario
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in Model)
+                    {
+                        <tr>
+                            <td>@usuario.Id</td>
+                            <td>@usuario.UserName</td>
+                            <td>@usuario.Email</td>
+                            <td>@usuario.Nombre</td>
+                            <td>@usuario.Apellido</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editarUsuario('@usuario.Id')">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario('@usuario.Id')">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="usuarioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="usuarioForm">
+                <div class="modal-body">
+                    <input type="hidden" id="usuarioId" name="Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="usuarioUserName" name="UserName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="usuarioEmail" name="Email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="usuarioNombre" name="Nombre" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="usuarioApellido" name="Apellido" />
+                    </div>
+                    <div class="mb-3" id="passwordContainer">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="usuarioPassword" name="Password" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" id="usuarioRol" name="Rol">
+                            <option value="Cliente">Cliente</option>
+                            <option value="Administrador">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function limpiarFormulario() {
+        document.getElementById('usuarioForm').reset();
+        document.getElementById('usuarioId').value = '';
+        document.getElementById('passwordContainer').style.display = 'block';
+    }
+    
+    async function editarUsuario(id) {
+        const response = await fetch(`/Admin/UsuarioDetalle?id=${id}`);
+        const usuario = await response.json();
+        
+        document.getElementById('usuarioId').value = usuario.id;
+        document.getElementById('usuarioUserName').value = usuario.userName || '';
+        document.getElementById('usuarioEmail').value = usuario.email || '';
+        document.getElementById('usuarioNombre').value = usuario.nombre || '';
+        document.getElementById('usuarioApellido').value = usuario.apellido || '';
+        document.getElementById('passwordContainer').style.display = 'none';
+        
+        const modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
+        modal.show();
+    }
+    
+    async function eliminarUsuario(id) {
+        if (confirm('¿Está seguro de eliminar este usuario?')) {
+            await fetch(`/Admin/EliminarUsuario?id=${id}`, { method: 'DELETE' });
+            location.reload();
+        }
+    }
+    
+    document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('usuarioId').value;
+        const usuario = {
+            id: id,
+            userName: document.getElementById('usuarioUserName').value,
+            email: document.getElementById('usuarioEmail').value,
+            nombre: document.getElementById('usuarioNombre').value,
+            apellido: document.getElementById('usuarioApellido').value
+        };
+        
+        const password = document.getElementById('usuarioPassword').value;
+        
+        if (id) {
+            await fetch(`/Admin/EditarUsuario?id=${id}`, { 
+                method: 'PUT', 
+                body: JSON.stringify(usuario) 
+            });
+        } else {
+            await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
+                method: 'POST', 
+                body: JSON.stringify(usuario) 
+            });
+        }
+        location.reload();
+    });
+</script>

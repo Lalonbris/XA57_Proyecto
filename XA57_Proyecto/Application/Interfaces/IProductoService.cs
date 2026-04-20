@@ -9,5 +9,6 @@ namespace XA57_Proyecto.Application.Interfaces
         Task<Producto?> ObtenerPorIdAsync(int id);
         Task<Producto> AgregarAsync(Producto producto);
         Task ActualizarAsync(Producto producto);
+        Task EliminarAsync(int id);
     }
 }

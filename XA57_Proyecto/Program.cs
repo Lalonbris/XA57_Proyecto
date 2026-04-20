@@ -28,6 +28,8 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<ILineaService, LineaService>();
 builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
+builder.Services.AddScoped<ITipoProductoService, TipoProductoService>();
+builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,153 @@
+@model IEnumerable<XA57_Proyecto.Domain.Entities.Linea>
+@{
+    ViewData["Title"] = "Administrar Líneas";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Líneas</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lineaModal" onclick="limpiarFormulario()">
+            <i class="material-icons">add</i> Nueva Línea
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Operador</th>
+                        <th>Color Primario</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var linea in Model)
+                    {
+                        <tr>
+                            <td>@linea.Id</td>
+                            <td>@linea.Nombre</td>
+                            <td>@linea.NombreOperador</td>
+                            <td>
+                                <span style="display:inline-block;width:20px;height:20px;background:@linea.ColorPrimario;border-radius:3px;"></span>
+                                @linea.ColorPrimario
+                            </td>
+                            <td>
+                                <span class="badge bg-success@(linea.Activa ? "" : " bg-secondary")">
+                                    @(linea.Activa ? "Activa" : "Inactiva")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editarLinea(@linea.Id)">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarLinea(@linea.Id)">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="lineaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Línea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="lineaForm">
+                <div class="modal-body">
+                    <input type="hidden" id="lineaId" name="Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="lineaNombre" name="Nombre" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Operador</label>
+                        <input type="text" class="form-control" id="lineaNombreOperador" name="NombreOperador" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Color Primario</label>
+                        <input type="color" class="form-control" id="lineaColorPrimario" name="ColorPrimario" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Color Secundario</label>
+                        <input type="color" class="form-control" id="lineaColorSecundario" name="ColorSecundario" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Logo URL</label>
+                        <input type="text" class="form-control" id="lineaLogoUrl" name="LogoUrl" />
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="lineaActiva" name="Activa" checked />
+                            <label class="form-check-label">Activa</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function limpiarFormulario() {
+        document.getElementById('lineaForm').reset();
+        document.getElementById('lineaId').value = '0';
+    }
+    
+    async function editarLinea(id) {
+        const response = await fetch(`/Admin/LineaDetalle?id=${id}`);
+        const linea = await response.json();
+        
+        document.getElementById('lineaId').value = linea.id;
+        document.getElementById('lineaNombre').value = linea.nombre;
+        document.getElementById('lineaNombreOperador').value = linea.nombreOperador || '';
+        document.getElementById('lineaColorPrimario').value = linea.colorPrimario || '#000000';
+        document.getElementById('lineaColorSecundario').value = linea.colorSecundario || '#ffffff';
+        document.getElementById('lineaLogoUrl').value = linea.logoUrl || '';
+        document.getElementById('lineaActiva').checked = linea.activa;
+        
+        const modal = new bootstrap.Modal(document.getElementById('lineaModal'));
+        modal.show();
+    }
+    
+    async function eliminarLinea(id) {
+        if (confirm('¿Está seguro de eliminar esta línea?')) {
+            await fetch(`/Admin/EliminarLinea?id=${id}`, { method: 'DELETE' });
+            location.reload();
+        }
+    }
+    
+    document.getElementById('lineaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('lineaId').value;
+        const linea = {
+            id: parseInt(id) || 0,
+            nombre: document.getElementById('lineaNombre').value,
+            nombreOperador: document.getElementById('lineaNombreOperador').value,
+            colorPrimario: document.getElementById('lineaColorPrimario').value,
+            colorSecundario: document.getElementById('lineaColorSecundario').value,
+            logoUrl: document.getElementById('lineaLogoUrl').value,
+            activa: document.getElementById('lineaActiva').checked
+        };
+        
+        const url = id == '0' ? '/Admin/CrearLinea' : `/Admin/EditarLinea?id=${id}`;
+        const method = id == '0' ? 'POST' : 'PUT';
+        
+        await fetch(url, { method, body: JSON.stringify(linea) });
+        location.reload();
+    });
+</script>

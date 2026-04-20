@@ -1,0 +1,124 @@
+@model IEnumerable<XA57_Proyecto.Domain.Entities.Pedido>
+@{
+    ViewData["Title"] = "Administrar Pedidos";
+    
+    string GetEstadoColor(string estado) {
+        return estado switch {
+            "Recibido" => "primary",
+            "Procesando" => "warning",
+            "Completado" => "success",
+            "Cancelado" => "danger",
+            _ => "secondary"
+        };
+    }
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Pedidos</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Cliente</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pedido in Model)
+                    {
+                        <tr>
+                            <td>#@pedido.Id</td>
+                            <td>@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@pedido.Producto?.Nombre</td>
+                            <td>@pedido.Cantidad</td>
+                            <td>@pedido.NombreOperador</td>
+                            <td>
+                                <span class="badge bg-@GetEstadoColor(pedido.Estado)">
+                                    @pedido.Estado
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="verPedido(@pedido.Id)">
+                                    <i class="material-icons">visibility</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="cambiarEstado(@pedido.Id, 'Completado')">
+                                    <i class="material-icons">check</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarPedido(@pedido.Id)">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pedidoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Pedido #<span id="pedidoDetalleId"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="pedidoDetalle">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function verPedido(id) {
+        const response = await fetch(`/Admin/PedidoDetalle?id=${id}`);
+        const pedido = await response.json();
+        
+        document.getElementById('pedidoDetalleId').textContent = pedido.id;
+        document.getElementById('pedidoDetalle').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Producto:</strong> ${pedido.producto?.nombre || 'N/A'}</p>
+                    <p><strong>Cantidad:</strong> ${pedido.cantidad}</p>
+                    <p><strong>Estado:</strong> ${pedido.estado}</p>
+                    <p><strong>Fecha:</strong> ${new Date(pedido.fechaCreacion).toLocaleString()}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Cliente:</strong> ${pedido.nombreOperador || 'N/A'}</p>
+                    <p><strong>Número Económico:</strong> ${pedido.numeroEconomico || 'N/A'}</p>
+                    <p><strong>Color:</strong> ${pedido.color || 'N/A'}</p>
+                    <p><strong>Ruta:</strong> ${pedido.ruta || 'N/A'}</p>
+                </div>
+            </div>
+            ${pedido.notasEspeciales ? `<p><strong>Notas:</strong> ${pedido.notasEspeciales}</p>` : ''}
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('pedidoModal'));
+        modal.show();
+    }
+    
+    async function cambiarEstado(id, nuevoEstado) {
+        await fetch(`/Admin/ActualizarEstadoPedido?id=${id}`, { 
+            method: 'PUT',
+            body: JSON.stringify(nuevoEstado)
+        });
+        location.reload();
+    }
+    
+    async function eliminarPedido(id) {
+        if (confirm('¿Está seguro de eliminar este pedido?')) {
+            await fetch(`/Admin/EliminarPedido?id=${id}`, { method: 'DELETE' });
+            location.reload();
+        }
+    }
+</script>

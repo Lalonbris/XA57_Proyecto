@@ -1,8 +1,8 @@
 using XA57_Proyecto.Domain.Entities;
 
-namespace XA57_Proyecto.Infrastructure.Repositories.Interfaces
+namespace XA57_Proyecto.Application.Interfaces
 {
-    public interface ITipoProductoRepository
+    public interface ITipoProductoService
     {
         Task<List<TipoProducto>> ObtenerTodosAsync();
         Task<TipoProducto?> ObtenerPorIdAsync(int id);

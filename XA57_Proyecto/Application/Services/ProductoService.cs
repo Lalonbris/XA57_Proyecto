@@ -85,5 +85,15 @@ namespace XA57_Proyecto.Application.Services
 
             await _repo.ActualizarAsync(producto);
         }
+
+        public async Task EliminarAsync(int id)
+        {
+            var producto = await _repo.ObtenerPorIdAsync(id);
+            if (producto == null)
+            {
+                throw new ValidationException("El producto que intenta eliminar no existe.");
+            }
+            await _repo.EliminarAsync(id);
+        }
     }
 }

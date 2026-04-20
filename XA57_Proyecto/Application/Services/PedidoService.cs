@@ -79,5 +79,20 @@ namespace XA57_Proyecto.Application.Services
         public Task EliminarItemAsync(int id) => _pedidoRepo.EliminarAsync(id);
 
         public Task<int> ContarItemsAsync() => _pedidoRepo.ContarAsync();
+
+        public Task<List<Pedido>> ObtenerTodosAsync() => _pedidoRepo.ObtenerTodosAsync();
+
+        public Task<Pedido?> ObtenerPorIdAsync(int id) => _pedidoRepo.ObtenerPorIdAsync(id);
+
+        public async Task ActualizarEstadoAsync(int id, string estado)
+        {
+            var pedido = await _pedidoRepo.ObtenerPorIdAsync(id);
+            if (pedido == null)
+            {
+                throw new ValidationException("El pedido no existe.");
+            }
+            pedido.Estado = estado;
+            await _pedidoRepo.ActualizarEstadoAsync(id, estado);
+        }
     }
 }

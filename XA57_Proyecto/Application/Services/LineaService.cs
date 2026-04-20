@@ -13,8 +13,16 @@ namespace XA57_Proyecto.Application.Services
             _repo = repo;
         }
 
+        public Task<List<Linea>> ObtenerTodosAsync() => _repo.ObtenerTodosAsync();
+
         public Task<List<Linea>> ObtenerActivasAsync() => _repo.ObtenerActivasAsync();
 
         public Task<Linea?> ObtenerPorIdAsync(int id) => _repo.ObtenerPorIdAsync(id);
+
+        public Task<Linea> AgregarAsync(Linea linea) => _repo.AgregarAsync(linea);
+
+        public Task ActualizarAsync(Linea linea) => _repo.ActualizarAsync(linea);
+
+        public Task EliminarAsync(int id) => _repo.EliminarAsync(id);
     }
 }

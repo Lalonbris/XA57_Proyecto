@@ -49,6 +49,12 @@
                     {
                         <input class="xa57-search" type="search" placeholder="Buscar productos..." />
                     }
+                    else if (controladorActual == "Admin")
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="material-icons">dashboard</i> Dashboard
+                        </a>
+                    }
                     else if (accionActual == "Detalle" && controladorActual == "Productos")
                     {
                         <span class="personalization-indicator">

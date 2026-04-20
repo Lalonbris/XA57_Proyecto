@@ -38,5 +38,30 @@ namespace XA57_Proyecto.Infrastructure.Repositories
         }
 
         public Task<int> ContarAsync() => _context.Pedidos.CountAsync();
+
+        public Task<List<Pedido>> ObtenerTodosAsync() =>
+            _context.Pedidos
+                .Include(p => p.Producto)
+                .Include(p => p.ModeloAutobus)
+                .Include(p => p.Linea)
+                .OrderByDescending(p => p.FechaCreacion)
+                .ToListAsync();
+
+        public async Task<Pedido?> ObtenerPorIdAsync(int id) =>
+            await _context.Pedidos
+                .Include(p => p.Producto)
+                .Include(p => p.ModeloAutobus)
+                .Include(p => p.Linea)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+        public async Task ActualizarEstadoAsync(int id, string estado)
+        {
+            var pedido = await _context.Pedidos.FindAsync(id);
+            if (pedido != null)
+            {
+                pedido.Estado = estado;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
