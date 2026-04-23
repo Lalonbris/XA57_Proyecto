@@ -4,121 +4,308 @@
     
     string GetEstadoColor(string estado) {
         return estado switch {
-            "Recibido" => "primary",
-            "Procesando" => "warning",
-            "Completado" => "success",
-            "Cancelado" => "danger",
-            _ => "secondary"
+            "Recibido" => "xa57-badge--received",
+            "Procesando" => "xa57-badge--processing",
+            "Completado" => "xa57-badge--completed",
+            "Cancelado" => "xa57-badge--cancelled",
+            _ => "xa57-badge--default"
         };
     }
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">Pedidos</h1>
+    <h1 class="xa57-title mb-4">Pedidos</h1>
     
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead>
+    <div class="xa57-table-container">
+        <table class="xa57-table" id="pedidosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pedido in Model)
+                {
                     <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Cliente</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                        <td>#@pedido.Id</td>
+                        <td>@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@pedido.Producto?.Nombre</td>
+                        <td>@pedido.Cantidad</td>
+                        <td>@pedido.NombreOperador</td>
+                        <td>
+                            <span class="xa57-badge @GetEstadoColor(pedido.Estado)">
+                                @pedido.Estado
+                            </span>
+                        </td>
+                        <td>
+                            <button class="xa57-btn-icon" onclick="verPedido(@pedido.Id)">
+                                <i class="material-icons">visibility</i>
+                            </button>
+                            <button class="xa57-btn-icon xa57-btn-icon--success" onclick="cambiarEstado(@pedido.Id, 'Completado')">
+                                <i class="material-icons">check</i>
+                            </button>
+                            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarPedido(@pedido.Id)">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var pedido in Model)
-                    {
-                        <tr>
-                            <td>#@pedido.Id</td>
-                            <td>@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@pedido.Producto?.Nombre</td>
-                            <td>@pedido.Cantidad</td>
-                            <td>@pedido.NombreOperador</td>
-                            <td>
-                                <span class="badge bg-@GetEstadoColor(pedido.Estado)">
-                                    @pedido.Estado
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="verPedido(@pedido.Id)">
-                                    <i class="material-icons">visibility</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" onclick="cambiarEstado(@pedido.Id, 'Completado')">
-                                    <i class="material-icons">check</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarPedido(@pedido.Id)">
-                                    <i class="material-icons">delete</i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 <div class="modal fade" id="pedidoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detalle del Pedido #<span id="pedidoDetalleId"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="xa57-modal-content">
+            <div class="xa57-modal-header">
+                <h5 class="xa57-modal-title">Detalle del Pedido #<span id="pedidoDetalleId"></span></h5>
+                <button type="button" class="xa57-btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="pedidoDetalle">
+            <div class="xa57-modal-body" id="pedidoDetalle">
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <div class="xa57-modal-footer">
+                <button type="button" class="btn btn-xa57-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+.xa57-table-container {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-1);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--ff-b);
+    font-size: 0.85rem;
+}
+
+.xa57-table thead {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+}
+
+.xa57-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--tx-2);
+    letter-spacing: 0.02em;
+}
+
+.xa57-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--bd-0);
+    color: var(--tx-0);
+}
+
+.xa57-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.xa57-table tbody tr {
+    transition: var(--t);
+}
+
+.xa57-table tbody tr:hover {
+    background: var(--bg-3);
+}
+
+.xa57-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--r-s);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.xa57-badge--received {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.xa57-badge--processing {
+    background: rgba(234, 179, 8, 0.15);
+    color: #facc15;
+}
+
+.xa57-badge--completed {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.xa57-badge--cancelled {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.xa57-badge--default {
+    background: rgba(107, 114, 128, 0.15);
+    color: #9ca3af;
+}
+
+.xa57-btn-icon {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-1);
+    color: var(--tx-1);
+    border-radius: var(--r-s);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--t);
+    margin-right: 4px;
+}
+
+.xa57-btn-icon:hover {
+    background: var(--bg-4);
+    border-color: var(--bd-2);
+    color: #fff;
+}
+
+.xa57-btn-icon--success:hover {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.xa57-btn-icon--danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #f87171;
+}
+
+.xa57-btn-icon .material-icons {
+    font-size: 16px;
+}
+
+.xa57-modal-content {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-2);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-modal-header {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.xa57-modal-title {
+    font-family: var(--ff-h);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tx-0);
+    margin: 0;
+}
+
+.xa57-btn-close {
+    background: none;
+    border: none;
+    color: var(--tx-2);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--t);
+}
+
+.xa57-btn-close:hover {
+    color: var(--tx-0);
+}
+
+.xa57-btn-close::before {
+    content: '\e5cd';
+    font-family: 'Material Icons';
+    font-size: 20px;
+}
+
+.xa57-modal-body {
+    padding: 20px;
+    color: var(--tx-0);
+    font-family: var(--ff-b);
+    font-size: 0.9rem;
+}
+
+.xa57-modal-body p {
+    margin-bottom: 8px;
+    color: var(--tx-1);
+}
+
+.xa57-modal-body strong {
+    color: var(--tx-0);
+    font-weight: 600;
+}
+
+.xa57-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--bd-0);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+</style>
+
 <script>
-    async function verPedido(id) {
-        const response = await fetch(`/Admin/PedidoDetalle?id=${id}`);
-        const pedido = await response.json();
-        
-        document.getElementById('pedidoDetalleId').textContent = pedido.id;
-        document.getElementById('pedidoDetalle').innerHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Producto:</strong> ${pedido.producto?.nombre || 'N/A'}</p>
-                    <p><strong>Cantidad:</strong> ${pedido.cantidad}</p>
-                    <p><strong>Estado:</strong> ${pedido.estado}</p>
-                    <p><strong>Fecha:</strong> ${new Date(pedido.fechaCreacion).toLocaleString()}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Cliente:</strong> ${pedido.nombreOperador || 'N/A'}</p>
-                    <p><strong>Número Económico:</strong> ${pedido.numeroEconomico || 'N/A'}</p>
-                    <p><strong>Color:</strong> ${pedido.color || 'N/A'}</p>
-                    <p><strong>Ruta:</strong> ${pedido.ruta || 'N/A'}</p>
-                </div>
-            </div>
-            ${pedido.notasEspeciales ? `<p><strong>Notas:</strong> ${pedido.notasEspeciales}</p>` : ''}
-        `;
-        
-        const modal = new bootstrap.Modal(document.getElementById('pedidoModal'));
-        modal.show();
-    }
+async function verPedido(id) {
+    const response = await fetch(`/Admin/PedidoDetalle?id=${id}`);
+    const pedido = await response.json();
     
-    async function cambiarEstado(id, nuevoEstado) {
-        await fetch(`/Admin/ActualizarEstadoPedido?id=${id}`, { 
-            method: 'PUT',
-            body: JSON.stringify(nuevoEstado)
-        });
+    document.getElementById('pedidoDetalleId').textContent = pedido.id;
+    document.getElementById('pedidoDetalle').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Producto:</strong> ${pedido.producto?.nombre || 'N/A'}</p>
+                <p><strong>Cantidad:</strong> ${pedido.cantidad}</p>
+                <p><strong>Estado:</strong> ${pedido.estado}</p>
+                <p><strong>Fecha:</strong> ${new Date(pedido.fechaCreacion).toLocaleString()}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Cliente:</strong> ${pedido.nombreOperador || 'N/A'}</p>
+                <p><strong>Número Económico:</strong> ${pedido.numeroEconomico || 'N/A'}</p>
+                <p><strong>Color:</strong> ${pedido.color || 'N/A'}</p>
+                <p><strong>Ruta:</strong> ${pedido.ruta || 'N/A'}</p>
+            </div>
+        </div>
+        ${pedido.notasEspeciales ? `<p><strong>Notas:</strong> ${pedido.notasEspeciales}</p>` : ''}
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('pedidoModal'));
+    modal.show();
+}
+
+async function cambiarEstado(id, nuevoEstado) {
+    await fetch(`/Admin/ActualizarEstadoPedido?id=${id}`, { 
+        method: 'PUT',
+        body: JSON.stringify(nuevoEstado)
+    });
+    location.reload();
+}
+
+async function eliminarPedido(id) {
+    if (confirm('¿Está seguro de eliminar este pedido?')) {
+        await fetch(`/Admin/EliminarPedido?id=${id}`, { method: 'DELETE' });
         location.reload();
     }
-    
-    async function eliminarPedido(id) {
-        if (confirm('¿Está seguro de eliminar este pedido?')) {
-            await fetch(`/Admin/EliminarPedido?id=${id}`, { method: 'DELETE' });
-            location.reload();
-        }
-    }
+}
 </script>

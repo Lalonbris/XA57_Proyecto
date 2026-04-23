@@ -81,6 +81,13 @@ namespace XA57_Proyecto.Controllers
             return View(tipos);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerTiposProducto()
+        {
+            var tipos = await _tipoProductoService.ObtenerTodosAsync();
+            return Ok(tipos.Select(t => new { id = t.Id, nombre = t.Nombre }));
+        }
+
         [HttpPost]
         public async Task<IActionResult> CrearTipoProducto([FromBody] TipoProducto tipoProducto)
         {

@@ -5,146 +5,380 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Productos</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productoModal" onclick="limpiarFormulario()">
+        <h1 class="xa57-title">Productos</h1>
+        <button class="btn btn-xa57-primary" data-bs-toggle="modal" data-bs-target="#productoModal" onclick="limpiarFormulario()">
             <i class="material-icons">add</i> Nuevo Producto
         </button>
     </div>
     
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-hover" id="productosTable">
-                <thead>
+    <div class="xa57-table-container">
+        <table class="xa57-table" id="productosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var producto in Model)
+                {
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                        <td>@producto.Id</td>
+                        <td>@producto.Nombre</td>
+                        <td>$@producto.Precio.ToString("N2")</td>
+                        <td>@producto.TipoProducto?.Nombre</td>
+                        <td>
+                            <span class="xa57-badge@(producto.Activo ? " xa57-badge--active" : " xa57-badge--inactive")">
+                                @(producto.Activo ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td>
+                            <button class="xa57-btn-icon" onclick="editarProducto(@producto.Id)">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarProducto(@producto.Id)">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var producto in Model)
-                    {
-                        <tr>
-                            <td>@producto.Id</td>
-                            <td>@producto.Nombre</td>
-                            <td>$@producto.Precio.ToString("N2")</td>
-                            <td>@producto.TipoProducto?.Nombre</td>
-                            <td>
-                                <span class="badge bg-success@(producto.Activo ? "" : " bg-secondary")">
-                                    @(producto.Activo ? "Activo" : "Inactivo")
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="editarProducto(@producto.Id)">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(@producto.Id)">
-                                    <i class="material-icons">delete</i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 <div class="modal fade" id="productoModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nuevo Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="xa57-modal-content">
+            <div class="xa57-modal-header">
+                <h5 class="xa57-modal-title">Nuevo Producto</h5>
+                <button type="button" class="xa57-btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="productoForm">
-                <div class="modal-body">
+                <div class="xa57-modal-body">
                     <input type="hidden" id="productoId" name="Id" />
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="productoNombre" name="Nombre" required />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Descripción</label>
                         <textarea class="form-control" id="productoDescripcion" name="Descripcion"></textarea>
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Precio</label>
                         <input type="number" class="form-control" id="productoPrecio" name="Precio" step="0.01" required />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Imagen URL</label>
                         <input type="text" class="form-control" id="productoImagenUrl" name="ImagenUrl" />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Tipo de Producto</label>
                         <select class="form-select" id="productoTipoProductoId" name="TipoProductoId">
                             <option value="">Seleccionar...</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <div class="form-check">
+                    <div class="xa57-form-group">
+                        <div class="xa57-form-check">
                             <input type="checkbox" class="form-check-input" id="productoActivo" name="Activo" checked />
                             <label class="form-check-label">Activo</label>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                <div class="xa57-modal-footer">
+                    <button type="button" class="btn btn-xa57-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-xa57-primary">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<style>
+.xa57-table-container {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-1);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--ff-b);
+    font-size: 0.85rem;
+}
+
+.xa57-table thead {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+}
+
+.xa57-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--tx-2);
+    letter-spacing: 0.02em;
+}
+
+.xa57-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--bd-0);
+    color: var(--tx-0);
+}
+
+.xa57-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.xa57-table tbody tr {
+    transition: var(--t);
+}
+
+.xa57-table tbody tr:hover {
+    background: var(--bg-3);
+}
+
+.xa57-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--r-s);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.xa57-badge--active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.xa57-badge--inactive {
+    background: rgba(107, 114, 128, 0.15);
+    color: #9ca3af;
+}
+
+.xa57-btn-icon {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-1);
+    color: var(--tx-1);
+    border-radius: var(--r-s);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--t);
+    margin-right: 4px;
+}
+
+.xa57-btn-icon:hover {
+    background: var(--bg-4);
+    border-color: var(--bd-2);
+    color: #fff;
+}
+
+.xa57-btn-icon--danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #f87171;
+}
+
+.xa57-btn-icon .material-icons {
+    font-size: 16px;
+}
+
+.xa57-modal-content {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-2);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-modal-header {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.xa57-modal-title {
+    font-family: var(--ff-h);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tx-0);
+    margin: 0;
+}
+
+.xa57-btn-close {
+    background: none;
+    border: none;
+    color: var(--tx-2);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--t);
+}
+
+.xa57-btn-close:hover {
+    color: var(--tx-0);
+}
+
+.xa57-btn-close::before {
+    content: '\\e5cd';
+    font-family: 'Material Icons';
+    font-size: 20px;
+}
+
+.xa57-modal-body {
+    padding: 20px;
+}
+
+.xa57-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--bd-0);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.xa57-form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.xa57-form-group .form-control,
+.xa57-form-group .form-select {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-2);
+    color: var(--tx-0);
+    border-radius: var(--r-m);
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-family: var(--ff-b);
+    outline: none;
+    transition: var(--t);
+    width: 100%;
+}
+
+.xa57-form-group .form-control:focus,
+.xa57-form-group .form-select:focus {
+    border-color: var(--bd-3);
+    background: var(--bg-4);
+    box-shadow: none;
+}
+
+.xa57-form-group .form-control::placeholder {
+    color: var(--tx-3);
+}
+
+.xa57-form-group .form-label {
+    font-family: var(--ff-b);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--tx-1);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.xa57-form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.xa57-form-check .form-check-input {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-2);
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.xa57-form-check .form-check-input:checked {
+    background: #fff;
+    border-color: #fff;
+}
+
+.xa57-form-check .form-check-label {
+    font-family: var(--ff-b);
+    font-size: 0.85rem;
+    color: var(--tx-1);
+    cursor: pointer;
+}
+</style>
+
 <script>
-    function limpiarFormulario() {
-        document.getElementById('productoForm').reset();
-        document.getElementById('productoId').value = '0';
-    }
-    
-    async function editarProducto(id) {
-        const response = await fetch(`/Admin/ProductoDetalle?id=${id}`);
-        const producto = await response.json();
-        
-        document.getElementById('productoId').value = producto.id;
-        document.getElementById('productoNombre').value = producto.nombre;
-        document.getElementById('productoDescripcion').value = producto.descripcion || '';
-        document.getElementById('productoPrecio').value = producto.precio;
-        document.getElementById('productoImagenUrl').value = producto.imagenUrl || '';
-        document.getElementById('productoActivo').checked = producto.activo;
-        
-        const modal = new bootstrap.Modal(document.getElementById('productoModal'));
-        modal.show();
-    }
-    
-    async function eliminarProducto(id) {
-        if (confirm('¿Está seguro de eliminar este producto?')) {
-            await fetch(`/Admin/EliminarProducto?id=${id}`, { method: 'DELETE' });
-            location.reload();
-        }
-    }
-    
-    document.getElementById('productoForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('productoId').value;
-        const producto = {
-            id: parseInt(id) || 0,
-            nombre: document.getElementById('productoNombre').value,
-            descripcion: document.getElementById('productoDescripcion').value,
-            precio: parseFloat(document.getElementById('productoPrecio').value),
-            imagenUrl: document.getElementById('productoImagenUrl').value,
-            activo: document.getElementById('productoActivo').checked
-        };
-        
-        const url = id == '0' ? '/Admin/CrearProducto' : `/Admin/EditarProducto?id=${id}`;
-        const method = id == '0' ? 'POST' : 'PUT';
-        
-        await fetch(url, { method, body: JSON.stringify(producto) });
-        location.reload();
+async function cargarTiposProducto() {
+    const response = await fetch('/Admin/ObtenerTiposProducto');
+    const tipos = await response.json();
+    const select = document.getElementById('productoTipoProductoId');
+    select.innerHTML = '<option value="">Seleccionar...</option>';
+    tipos.forEach(tipo => {
+        const option = document.createElement('option');
+        option.value = tipo.id;
+        option.textContent = tipo.nombre;
+        select.appendChild(option);
     });
+}
+
+cargarTiposProducto();
+
+function limpiarFormulario() {
+    document.getElementById('productoForm').reset();
+    document.getElementById('productoId').value = '0';
+}
+
+async function editarProducto(id) {
+    const response = await fetch(`/Admin/ProductoDetalle?id=${id}`);
+    const producto = await response.json();
+    
+    document.getElementById('productoId').value = producto.id;
+    document.getElementById('productoNombre').value = producto.nombre;
+    document.getElementById('productoDescripcion').value = producto.descripcion || '';
+    document.getElementById('productoPrecio').value = producto.precio;
+    document.getElementById('productoImagenUrl').value = producto.imagenUrl || '';
+    document.getElementById('productoActivo').checked = producto.activo;
+    
+    const modal = new bootstrap.Modal(document.getElementById('productoModal'));
+    modal.show();
+}
+
+async function eliminarProducto(id) {
+    if (confirm('¿Está seguro de eliminar este producto?')) {
+        await fetch(`/Admin/EliminarProducto?id=${id}`, { method: 'DELETE' });
+        location.reload();
+    }
+}
+
+document.getElementById('productoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('productoId').value;
+    const producto = {
+        id: parseInt(id) || 0,
+        nombre: document.getElementById('productoNombre').value,
+        descripcion: document.getElementById('productoDescripcion').value,
+        precio: parseFloat(document.getElementById('productoPrecio').value),
+        imagenUrl: document.getElementById('productoImagenUrl').value,
+        activo: document.getElementById('productoActivo').checked
+    };
+    
+    const url = id == '0' ? '/Admin/CrearProducto' : `/Admin/EditarProducto?id=${id}`;
+    const method = id == '0' ? 'POST' : 'PUT';
+    
+    await fetch(url, { method, body: JSON.stringify(producto) });
+    location.reload();
+});
 </script>

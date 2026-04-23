@@ -5,81 +5,79 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Usuarios</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#usuarioModal" onclick="limpiarFormulario()">
+        <h1 class="xa57-title">Usuarios</h1>
+        <button class="btn btn-xa57-primary" data-bs-toggle="modal" data-bs-target="#usuarioModal" onclick="limpiarFormulario()">
             <i class="material-icons">person_add</i> Nuevo Usuario
         </button>
     </div>
     
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-hover">
-                <thead>
+    <div class="xa57-table-container">
+        <table class="xa57-table" id="usuariosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model)
+                {
                     <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Email</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Acciones</th>
+                        <td>@usuario.Id</td>
+                        <td>@usuario.UserName</td>
+                        <td>@usuario.Email</td>
+                        <td>@usuario.Nombre</td>
+                        <td>@usuario.Apellido</td>
+                        <td>
+                            <button class="xa57-btn-icon" onclick="editarUsuario('@usuario.Id')">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarUsuario('@usuario.Id')">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var usuario in Model)
-                    {
-                        <tr>
-                            <td>@usuario.Id</td>
-                            <td>@usuario.UserName</td>
-                            <td>@usuario.Email</td>
-                            <td>@usuario.Nombre</td>
-                            <td>@usuario.Apellido</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="editarUsuario('@usuario.Id')">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario('@usuario.Id')">
-                                    <i class="material-icons">delete</i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 <div class="modal fade" id="usuarioModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nuevo Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="xa57-modal-content">
+            <div class="xa57-modal-header">
+                <h5 class="xa57-modal-title">Nuevo Usuario</h5>
+                <button type="button" class="xa57-btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="usuarioForm">
-                <div class="modal-body">
+                <div class="xa57-modal-body">
                     <input type="hidden" id="usuarioId" name="Id" />
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Nombre de Usuario</label>
                         <input type="text" class="form-control" id="usuarioUserName" name="UserName" required />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Email</label>
                         <input type="email" class="form-control" id="usuarioEmail" name="Email" required />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="usuarioNombre" name="Nombre" />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Apellido</label>
                         <input type="text" class="form-control" id="usuarioApellido" name="Apellido" />
                     </div>
-                    <div class="mb-3" id="passwordContainer">
+                    <div class="xa57-form-group" id="passwordContainer">
                         <label class="form-label">Contraseña</label>
                         <input type="password" class="form-control" id="usuarioPassword" name="Password" />
                     </div>
-                    <div class="mb-3">
+                    <div class="xa57-form-group">
                         <label class="form-label">Rol</label>
                         <select class="form-select" id="usuarioRol" name="Rol">
                             <option value="Cliente">Cliente</option>
@@ -87,68 +85,243 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                <div class="xa57-modal-footer">
+                    <button type="button" class="btn btn-xa57-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-xa57-primary">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<style>
+.xa57-table-container {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-1);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--ff-b);
+    font-size: 0.85rem;
+}
+
+.xa57-table thead {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+}
+
+.xa57-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--tx-2);
+    letter-spacing: 0.02em;
+}
+
+.xa57-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--bd-0);
+    color: var(--tx-0);
+}
+
+.xa57-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.xa57-table tbody tr {
+    transition: var(--t);
+}
+
+.xa57-table tbody tr:hover {
+    background: var(--bg-3);
+}
+
+.xa57-btn-icon {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-1);
+    color: var(--tx-1);
+    border-radius: var(--r-s);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--t);
+    margin-right: 4px;
+}
+
+.xa57-btn-icon:hover {
+    background: var(--bg-4);
+    border-color: var(--bd-2);
+    color: #fff;
+}
+
+.xa57-btn-icon--danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #f87171;
+}
+
+.xa57-btn-icon .material-icons {
+    font-size: 16px;
+}
+
+.xa57-modal-content {
+    background: var(--bg-2);
+    border: 1px solid var(--bd-2);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+}
+
+.xa57-modal-header {
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--bd-1);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.xa57-modal-title {
+    font-family: var(--ff-h);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tx-0);
+    margin: 0;
+}
+
+.xa57-btn-close {
+    background: none;
+    border: none;
+    color: var(--tx-2);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--t);
+}
+
+.xa57-btn-close:hover {
+    color: var(--tx-0);
+}
+
+.xa57-btn-close::before {
+    content: '\e5cd';
+    font-family: 'Material Icons';
+    font-size: 20px;
+}
+
+.xa57-modal-body {
+    padding: 20px;
+}
+
+.xa57-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--bd-0);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.xa57-form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.xa57-form-group .form-control,
+.xa57-form-group .form-select {
+    background: var(--bg-3);
+    border: 1px solid var(--bd-2);
+    color: var(--tx-0);
+    border-radius: var(--r-m);
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-family: var(--ff-b);
+    outline: none;
+    transition: var(--t);
+    width: 100%;
+}
+
+.xa57-form-group .form-control:focus,
+.xa57-form-group .form-select:focus {
+    border-color: var(--bd-3);
+    background: var(--bg-4);
+    box-shadow: none;
+}
+
+.xa57-form-group .form-control::placeholder {
+    color: var(--tx-3);
+}
+
+.xa57-form-group .form-label {
+    font-family: var(--ff-b);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--tx-1);
+    margin-bottom: 6px;
+    display: block;
+}
+</style>
+
 <script>
-    function limpiarFormulario() {
-        document.getElementById('usuarioForm').reset();
-        document.getElementById('usuarioId').value = '';
-        document.getElementById('passwordContainer').style.display = 'block';
-    }
+function limpiarFormulario() {
+    document.getElementById('usuarioForm').reset();
+    document.getElementById('usuarioId').value = '';
+    document.getElementById('passwordContainer').style.display = 'block';
+}
+
+async function editarUsuario(id) {
+    const response = await fetch(`/Admin/UsuarioDetalle?id=${id}`);
+    const usuario = await response.json();
     
-    async function editarUsuario(id) {
-        const response = await fetch(`/Admin/UsuarioDetalle?id=${id}`);
-        const usuario = await response.json();
-        
-        document.getElementById('usuarioId').value = usuario.id;
-        document.getElementById('usuarioUserName').value = usuario.userName || '';
-        document.getElementById('usuarioEmail').value = usuario.email || '';
-        document.getElementById('usuarioNombre').value = usuario.nombre || '';
-        document.getElementById('usuarioApellido').value = usuario.apellido || '';
-        document.getElementById('passwordContainer').style.display = 'none';
-        
-        const modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
-        modal.show();
-    }
+    document.getElementById('usuarioId').value = usuario.id;
+    document.getElementById('usuarioUserName').value = usuario.userName || '';
+    document.getElementById('usuarioEmail').value = usuario.email || '';
+    document.getElementById('usuarioNombre').value = usuario.nombre || '';
+    document.getElementById('usuarioApellido').value = usuario.apellido || '';
+    document.getElementById('passwordContainer').style.display = 'none';
     
-    async function eliminarUsuario(id) {
-        if (confirm('¿Está seguro de eliminar este usuario?')) {
-            await fetch(`/Admin/EliminarUsuario?id=${id}`, { method: 'DELETE' });
-            location.reload();
-        }
-    }
-    
-    document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('usuarioId').value;
-        const usuario = {
-            id: id,
-            userName: document.getElementById('usuarioUserName').value,
-            email: document.getElementById('usuarioEmail').value,
-            nombre: document.getElementById('usuarioNombre').value,
-            apellido: document.getElementById('usuarioApellido').value
-        };
-        
-        const password = document.getElementById('usuarioPassword').value;
-        
-        if (id) {
-            await fetch(`/Admin/EditarUsuario?id=${id}`, { 
-                method: 'PUT', 
-                body: JSON.stringify(usuario) 
-            });
-        } else {
-            await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
-                method: 'POST', 
-                body: JSON.stringify(usuario) 
-            });
-        }
+    const modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
+    modal.show();
+}
+
+async function eliminarUsuario(id) {
+    if (confirm('¿Está seguro de eliminar este usuario?')) {
+        await fetch(`/Admin/EliminarUsuario?id=${id}`, { method: 'DELETE' });
         location.reload();
-    });
+    }
+}
+
+document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('usuarioId').value;
+    const usuario = {
+        id: id,
+        userName: document.getElementById('usuarioUserName').value,
+        email: document.getElementById('usuarioEmail').value,
+        nombre: document.getElementById('usuarioNombre').value,
+        apellido: document.getElementById('usuarioApellido').value
+    };
+    
+    const password = document.getElementById('usuarioPassword').value;
+    
+    if (id) {
+        await fetch(`/Admin/EditarUsuario?id=${id}`, { 
+            method: 'PUT', 
+            body: JSON.stringify(usuario) 
+        });
+    } else {
+        await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
+            method: 'POST', 
+            body: JSON.stringify(usuario) 
+        });
+    }
+    location.reload();
+});
 </script>
