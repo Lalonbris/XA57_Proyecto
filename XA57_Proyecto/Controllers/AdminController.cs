@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XA57_Proyecto.Application.Exceptions;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Domain.Entities;
 
@@ -53,23 +54,44 @@ namespace XA57_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearProducto([FromBody] Producto producto)
         {
-            var nuevo = await _productoService.AgregarAsync(producto);
-            return Ok(nuevo);
+            try
+            {
+                var nuevo = await _productoService.AgregarAsync(producto);
+                return Ok(nuevo);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> EditarProducto(int id, [FromBody] Producto producto)
         {
-            if (id != producto.Id) return BadRequest();
-            await _productoService.ActualizarAsync(producto);
-            return Ok();
+            if (id != producto.Id) return BadRequest(new { error = "El ID del producto no coincide." });
+            try
+            {
+                await _productoService.ActualizarAsync(producto);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> EliminarProducto(int id)
         {
-            await _productoService.EliminarAsync(id);
-            return Ok();
+            try
+            {
+                await _productoService.EliminarAsync(id);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
         #endregion
 
@@ -84,23 +106,44 @@ namespace XA57_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearTipoProducto([FromBody] TipoProducto tipoProducto)
         {
-            var nuevo = await _tipoProductoService.AgregarAsync(tipoProducto);
-            return Ok(nuevo);
+            try
+            {
+                var nuevo = await _tipoProductoService.AgregarAsync(tipoProducto);
+                return Ok(nuevo);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> EditarTipoProducto(int id, [FromBody] TipoProducto tipoProducto)
         {
-            if (id != tipoProducto.Id) return BadRequest();
-            await _tipoProductoService.ActualizarAsync(tipoProducto);
-            return Ok();
+            if (id != tipoProducto.Id) return BadRequest(new { error = "El ID del tipo de producto no coincide." });
+            try
+            {
+                await _tipoProductoService.ActualizarAsync(tipoProducto);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> EliminarTipoProducto(int id)
         {
-            await _tipoProductoService.EliminarAsync(id);
-            return Ok();
+            try
+            {
+                await _tipoProductoService.EliminarAsync(id);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
         #endregion
 
@@ -115,23 +158,44 @@ namespace XA57_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearLinea([FromBody] Linea linea)
         {
-            var nueva = await _lineaService.AgregarAsync(linea);
-            return Ok(nueva);
+            try
+            {
+                var nueva = await _lineaService.AgregarAsync(linea);
+                return Ok(nueva);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> EditarLinea(int id, [FromBody] Linea linea)
         {
-            if (id != linea.Id) return BadRequest();
-            await _lineaService.ActualizarAsync(linea);
-            return Ok();
+            if (id != linea.Id) return BadRequest(new { error = "El ID de la línea no coincide." });
+            try
+            {
+                await _lineaService.ActualizarAsync(linea);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> EliminarLinea(int id)
         {
-            await _lineaService.EliminarAsync(id);
-            return Ok();
+            try
+            {
+                await _lineaService.EliminarAsync(id);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
         #endregion
 
@@ -154,8 +218,15 @@ namespace XA57_Proyecto.Controllers
         [HttpPut]
         public async Task<IActionResult> ActualizarEstadoPedido(int id, [FromBody] string estado)
         {
-            await _pedidoService.ActualizarEstadoAsync(id, estado);
-            return Ok();
+            try
+            {
+                await _pedidoService.ActualizarEstadoAsync(id, estado);
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete]

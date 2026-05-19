@@ -68,11 +68,13 @@
                     <input type="hidden" id="lineaId" name="Id" />
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="lineaNombre" name="Nombre" required />
+                        <input type="text" class="form-control" id="lineaNombre" name="Nombre" maxlength="100" required />
+                        <div class="invalid-feedback" id="lineaNombreError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre del Operador</label>
-                        <input type="text" class="form-control" id="lineaNombreOperador" name="NombreOperador" />
+                        <input type="text" class="form-control" id="lineaNombreOperador" name="NombreOperador" maxlength="100" />
+                        <div class="invalid-feedback" id="lineaNombreOperadorError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Color Primario</label>
@@ -84,7 +86,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Logo URL</label>
-                        <input type="text" class="form-control" id="lineaLogoUrl" name="LogoUrl" />
+                        <input type="text" class="form-control" id="lineaLogoUrl" name="LogoUrl" maxlength="500" />
+                        <div class="invalid-feedback" id="lineaLogoUrlError"></div>
                     </div>
                     <div class="mb-3">
                         <div class="form-check">
@@ -131,12 +134,51 @@
         }
     }
     
+    function limpiarErrores() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    }
+
+    function mostrarError(inputId, errorId, mensaje) {
+        document.getElementById(inputId).classList.add('is-invalid');
+        document.getElementById(errorId).textContent = mensaje;
+    }
+
+    function validarLinea() {
+        limpiarErrores();
+        let valido = true;
+
+        const nombre = document.getElementById('lineaNombre').value.trim();
+        if (!nombre) {
+            mostrarError('lineaNombre', 'lineaNombreError', 'El nombre de la línea es obligatorio.');
+            valido = false;
+        } else if (nombre.length > 100) {
+            mostrarError('lineaNombre', 'lineaNombreError', 'El nombre no puede exceder los 100 caracteres.');
+            valido = false;
+        }
+
+        const nombreOperador = document.getElementById('lineaNombreOperador').value;
+        if (nombreOperador && nombreOperador.length > 100) {
+            mostrarError('lineaNombreOperador', 'lineaNombreOperadorError', 'El nombre del operador no puede exceder los 100 caracteres.');
+            valido = false;
+        }
+
+        const logoUrl = document.getElementById('lineaLogoUrl').value;
+        if (logoUrl && logoUrl.length > 500) {
+            mostrarError('lineaLogoUrl', 'lineaLogoUrlError', 'La URL del logo no puede exceder los 500 caracteres.');
+            valido = false;
+        }
+
+        return valido;
+    }
+
     document.getElementById('lineaForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!validarLinea()) return;
+
         const id = document.getElementById('lineaId').value;
         const linea = {
             id: parseInt(id) || 0,
-            nombre: document.getElementById('lineaNombre').value,
+            nombre: document.getElementById('lineaNombre').value.trim(),
             nombreOperador: document.getElementById('lineaNombreOperador').value,
             colorPrimario: document.getElementById('lineaColorPrimario').value,
             colorSecundario: document.getElementById('lineaColorSecundario').value,
@@ -147,7 +189,12 @@
         const url = id == '0' ? '/Admin/CrearLinea' : `/Admin/EditarLinea?id=${id}`;
         const method = id == '0' ? 'POST' : 'PUT';
         
-        await fetch(url, { method, body: JSON.stringify(linea) });
+        const response = await fetch(url, { method, body: JSON.stringify(linea), headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'Error al guardar la línea.'));
+            return;
+        }
         location.reload();
     });
 </script>

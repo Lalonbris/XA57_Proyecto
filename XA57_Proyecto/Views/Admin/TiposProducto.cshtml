@@ -63,11 +63,13 @@
                     <input type="hidden" id="tipoId" name="Id" />
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="tipoNombre" name="Nombre" required />
+                        <input type="text" class="form-control" id="tipoNombre" name="Nombre" maxlength="100" required />
+                        <div class="invalid-feedback" id="tipoNombreError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Máximo de Caracteres</label>
-                        <input type="number" class="form-control" id="tipoMaxCaracteres" name="MaxCaracteres" value="20" />
+                        <input type="number" class="form-control" id="tipoMaxCaracteres" name="MaxCaracteres" value="20" min="1" max="100" />
+                        <div class="invalid-feedback" id="tipoMaxCaracteresError"></div>
                     </div>
                     <div class="mb-3">
                         <div class="form-check">
@@ -125,12 +127,45 @@
         }
     }
     
+    function limpiarErrores() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    }
+
+    function mostrarError(inputId, errorId, mensaje) {
+        document.getElementById(inputId).classList.add('is-invalid');
+        document.getElementById(errorId).textContent = mensaje;
+    }
+
+    function validarTipo() {
+        limpiarErrores();
+        let valido = true;
+
+        const nombre = document.getElementById('tipoNombre').value.trim();
+        if (!nombre) {
+            mostrarError('tipoNombre', 'tipoNombreError', 'El nombre del tipo de producto es obligatorio.');
+            valido = false;
+        } else if (nombre.length > 100) {
+            mostrarError('tipoNombre', 'tipoNombreError', 'El nombre no puede exceder los 100 caracteres.');
+            valido = false;
+        }
+
+        const maxCaracteres = parseInt(document.getElementById('tipoMaxCaracteres').value);
+        if (isNaN(maxCaracteres) || maxCaracteres < 1 || maxCaracteres > 100) {
+            mostrarError('tipoMaxCaracteres', 'tipoMaxCaracteresError', 'El máximo de caracteres debe estar entre 1 y 100.');
+            valido = false;
+        }
+
+        return valido;
+    }
+
     document.getElementById('tipoForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!validarTipo()) return;
+
         const id = document.getElementById('tipoId').value;
         const tipo = {
             id: parseInt(id) || 0,
-            nombre: document.getElementById('tipoNombre').value,
+            nombre: document.getElementById('tipoNombre').value.trim(),
             maxCaracteres: parseInt(document.getElementById('tipoMaxCaracteres').value),
             permiteNombre: document.getElementById('tipoPermiteNombre').checked,
             permiteNumeroEconomico: document.getElementById('tipoPermiteNumeroEconomico').checked,
@@ -140,7 +175,12 @@
         const url = id == '0' ? '/Admin/CrearTipoProducto' : `/Admin/EditarTipoProducto?id=${id}`;
         const method = id == '0' ? 'POST' : 'PUT';
         
-        await fetch(url, { method, body: JSON.stringify(tipo) });
+        const response = await fetch(url, { method, body: JSON.stringify(tipo), headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'Error al guardar el tipo de producto.'));
+            return;
+        }
         location.reload();
     });
 </script>

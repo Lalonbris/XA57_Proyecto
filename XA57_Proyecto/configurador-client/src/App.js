@@ -72,6 +72,19 @@ export default function Configurador(props) {
     };
 
     const handleAgregarCarrito = async () => {
+        if (cantidad < 1) {
+            mostrarToast("La cantidad debe ser al menos 1.");
+            return;
+        }
+        if (cantidad > 100) {
+            mostrarToast("La cantidad no puede exceder 100.");
+            return;
+        }
+        if (numeroSerie && numeroSerie.length > maxCaracteres) {
+            mostrarToast(`El número de unidad no debe exceder ${maxCaracteres} caracteres.`);
+            return;
+        }
+
         const datos = { productoId, color: colorNombre, colorHex, numeroSerie, notasEspeciales, cantidad };
         const response = await fetch("/Carrito/Agregar", {
             method: "POST",
@@ -83,6 +96,9 @@ export default function Configurador(props) {
             if (window.actualizarIconoCarrito) {
                 window.actualizarIconoCarrito();
             }
+        } else {
+            const data = await response.json();
+            mostrarToast(data.error || "Error al agregar al carrito.");
         }
     };
 

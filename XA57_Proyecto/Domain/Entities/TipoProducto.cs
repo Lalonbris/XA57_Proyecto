@@ -10,10 +10,12 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El nombre del tipo de producto es obligatorio.")]
+        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         [Column("nombre")]
         public string Nombre { get; set; } = string.Empty;
 
+        [Range(1, 100, ErrorMessage = "El máximo de caracteres debe estar entre 1 y 100.")]
         [Column("max_caracteres")]
         public int MaxCaracteres { get; set; } = 20;
 

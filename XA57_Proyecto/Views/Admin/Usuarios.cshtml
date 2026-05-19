@@ -61,23 +61,28 @@
                     <input type="hidden" id="usuarioId" name="Id" />
                     <div class="mb-3">
                         <label class="form-label">Nombre de Usuario</label>
-                        <input type="text" class="form-control" id="usuarioUserName" name="UserName" required />
+                        <input type="text" class="form-control" id="usuarioUserName" name="UserName" maxlength="256" required />
+                        <div class="invalid-feedback" id="usuarioUserNameError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" id="usuarioEmail" name="Email" required />
+                        <input type="email" class="form-control" id="usuarioEmail" name="Email" maxlength="256" required />
+                        <div class="invalid-feedback" id="usuarioEmailError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="usuarioNombre" name="Nombre" />
+                        <input type="text" class="form-control" id="usuarioNombre" name="Nombre" maxlength="100" />
+                        <div class="invalid-feedback" id="usuarioNombreError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="usuarioApellido" name="Apellido" />
+                        <input type="text" class="form-control" id="usuarioApellido" name="Apellido" maxlength="100" />
+                        <div class="invalid-feedback" id="usuarioApellidoError"></div>
                     </div>
                     <div class="mb-3" id="passwordContainer">
                         <label class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="usuarioPassword" name="Password" />
+                        <input type="password" class="form-control" id="usuarioPassword" name="Password" minlength="6" />
+                        <div class="invalid-feedback" id="usuarioPasswordError"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Rol</label>
@@ -125,29 +130,92 @@
         }
     }
     
+    function limpiarErrores() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    }
+
+    function mostrarError(inputId, errorId, mensaje) {
+        document.getElementById(inputId).classList.add('is-invalid');
+        document.getElementById(errorId).textContent = mensaje;
+    }
+
+    function validarUsuario() {
+        limpiarErrores();
+        let valido = true;
+
+        const userName = document.getElementById('usuarioUserName').value.trim();
+        if (!userName) {
+            mostrarError('usuarioUserName', 'usuarioUserNameError', 'El nombre de usuario es obligatorio.');
+            valido = false;
+        }
+
+        const email = document.getElementById('usuarioEmail').value.trim();
+        if (!email) {
+            mostrarError('usuarioEmail', 'usuarioEmailError', 'El email es obligatorio.');
+            valido = false;
+        } else if (!/^[^@@\s]+@@[^@@\s]+\.[^@@\s]+$/.test(email)) {
+            mostrarError('usuarioEmail', 'usuarioEmailError', 'El email no tiene un formato válido.');
+            valido = false;
+        }
+
+        const nombre = document.getElementById('usuarioNombre').value;
+        if (nombre && nombre.length > 100) {
+            mostrarError('usuarioNombre', 'usuarioNombreError', 'El nombre no puede exceder los 100 caracteres.');
+            valido = false;
+        }
+
+        const apellido = document.getElementById('usuarioApellido').value;
+        if (apellido && apellido.length > 100) {
+            mostrarError('usuarioApellido', 'usuarioApellidoError', 'El apellido no puede exceder los 100 caracteres.');
+            valido = false;
+        }
+
+        const id = document.getElementById('usuarioId').value;
+        if (!id) {
+            const password = document.getElementById('usuarioPassword').value;
+            if (!password || password.length < 6) {
+                mostrarError('usuarioPassword', 'usuarioPasswordError', 'La contraseña debe tener al menos 6 caracteres.');
+                valido = false;
+            }
+        }
+
+        return valido;
+    }
+
     document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!validarUsuario()) return;
+
         const id = document.getElementById('usuarioId').value;
         const usuario = {
             id: id,
-            userName: document.getElementById('usuarioUserName').value,
-            email: document.getElementById('usuarioEmail').value,
+            userName: document.getElementById('usuarioUserName').value.trim(),
+            email: document.getElementById('usuarioEmail').value.trim(),
             nombre: document.getElementById('usuarioNombre').value,
             apellido: document.getElementById('usuarioApellido').value
         };
         
         const password = document.getElementById('usuarioPassword').value;
+        let response;
         
         if (id) {
-            await fetch(`/Admin/EditarUsuario?id=${id}`, { 
+            response = await fetch(`/Admin/EditarUsuario?id=${id}`, { 
                 method: 'PUT', 
-                body: JSON.stringify(usuario) 
+                body: JSON.stringify(usuario),
+                headers: { 'Content-Type': 'application/json' }
             });
         } else {
-            await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
+            response = await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
                 method: 'POST', 
-                body: JSON.stringify(usuario) 
+                body: JSON.stringify(usuario),
+                headers: { 'Content-Type': 'application/json' }
             });
+        }
+
+        if (!response.ok) {
+            const data = await response.json();
+            alert('Error: ' + (data.error || 'Error al guardar el usuario.'));
+            return;
         }
         location.reload();
     });
