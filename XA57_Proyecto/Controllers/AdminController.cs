@@ -416,6 +416,7 @@ namespace XA57_Proyecto.Controllers
 
                 // Asignar un nuevo ID único al crear el usuario para evitar conflictos de llave primaria.
                 dto.Usuario.Id = Guid.NewGuid().ToString();
+                dto.Usuario.EmailConfirmed = true;
 
                 var resultado = await _usuarioAdminService.CrearUsuarioAsync(dto.Usuario, dto.Password);
                 if (!resultado.Succeeded)
