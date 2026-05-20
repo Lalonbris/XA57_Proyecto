@@ -14,8 +14,9 @@
   },
 "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "set \"BUILD_PATH=../wwwroot/configurador\" && react-scripts build",
     "test": "react-scripts test",
+    "postbuild": "node scripts/rename-build.js",
     "eject": "react-scripts eject"
 },
   "eslintConfig": {

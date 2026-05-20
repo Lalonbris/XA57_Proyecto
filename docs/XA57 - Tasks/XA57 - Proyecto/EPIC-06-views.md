@@ -39,7 +39,7 @@
   - Imágenes con `loading="lazy"` para rendimiento (P-03)
   - Mensaje de lista vacía si no hay productos
 
-- [ ] **EPIC-06-05** — `Views/Productos/Detalle.cshtml` 🔴
+- [x] **EPIC-06-05** — `Views/Productos/Detalle.cshtml` 🔴
   - → Spec: CU-03, CU-04, CU-05
   - Modelo: `@model Producto`
   - Imagen del producto (grande, con zoom)

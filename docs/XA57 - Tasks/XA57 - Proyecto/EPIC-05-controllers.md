@@ -53,7 +53,7 @@
 
 ## ConfiguradorApiController
 
-- [ ] **EPIC-05-05** — `Controllers/ConfiguradorApiController.cs` 🔴
+- [x] **EPIC-05-05** — `Controllers/ConfiguradorApiController.cs` 🔴
   - → Spec: `06-api-contracts.md §2`
   - Ruta base: `[Route("api/configurador")]`
   - Inyectar `IModeloAutobusService`, `ILineaService`, `IProductoService`

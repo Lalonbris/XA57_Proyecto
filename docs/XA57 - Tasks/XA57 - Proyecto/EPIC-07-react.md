@@ -32,7 +32,7 @@
 
 ## Llamadas a la API
 
-- [ ] **EPIC-07-03** — Hook `useConfiguradorData` 🔴
+- [x] **EPIC-07-03** — Hook `useConfiguradorData` 🔴
   - → Spec: `06-api-contracts.md §2`, DS-02
   - Depende de: EPIC-05-05 (ConfiguradorApiController) ⏳
   - Ejecutar las 3 llamadas en paralelo al montar el componente:
@@ -55,13 +55,13 @@
 
 ## Componentes de Selección
 
-- [ ] **EPIC-07-04** — Componente `ModeloSelector` 🔴
+- [x] **EPIC-07-04** — Componente `ModeloSelector` 🔴
   - Props: `modelos`, `selectedId`, `onSelect`
   - `<select>` o grid de tarjetas con modelos disponibles
   - Etiqueta `* Obligatorio` visible (U-02, RN-02)
   - Error visual si no hay modelo seleccionado al intentar enviar
 
-- [ ] **EPIC-07-05** — Componente `LineaSelector` 🔴
+- [x] **EPIC-07-05** — Componente `LineaSelector` 🔴
   - Props: `lineas`, `selectedLinea`, `onSelect`
   - Lista/grid con nombre de línea y swatches de `colorPrimario` + `colorSecundario`
   - Al seleccionar llama a `onSelect(linea)` con el objeto completo (se necesitan los colores para la vista previa y para el campo `ColorHex` del carrito)
@@ -74,7 +74,7 @@
 
 ## Formulario de Personalización
 
-- [ ] **EPIC-07-06** — Componente `PersonalizacionForm` 🔴
+- [x] **EPIC-07-06** — Componente `PersonalizacionForm` 🔴
   - → Spec: CU-04 pasos 5–8, RN-03, RN-04
   - Props: `tipoProducto`, `valores`, `onChange`
   - Renderizado condicional según flags:
@@ -99,7 +99,7 @@
 
 ## Vista Previa
 
-- [ ] **EPIC-07-07** — Componente `VistaPrevia` 🔴
+- [x] **EPIC-07-07** — Componente `VistaPrevia` 🔴
   - → Spec: CU-05, NFR U-06, P-01
   - Props: `producto`, `modeloSeleccionado`, `lineaSeleccionada`, `personalizacion`
   - Representación visual del producto con:
@@ -117,11 +117,11 @@
 
 ## Controles y Envío
 
-- [ ] **EPIC-07-08** — Componente `CantidadControl` 🟡
+- [x] **EPIC-07-08** — Componente `CantidadControl` 🟡
   - Botones `+` / `−` y campo numérico editable
   - Valor mínimo: 1 (no permite reducir por debajo)
 
-- [ ] **EPIC-07-09** — Utilidades de validación (`utils/validaciones.js`) 🔴
+- [x] **EPIC-07-09** — Utilidades de validación (`utils/validaciones.js`) 🔴
   - → Spec: RN-02, RN-03, RN-04, `06-api-contracts.md §5`
   ```javascript
   export function validarConfiguracion(config, tipoProducto) {
@@ -143,7 +143,7 @@
   ```
   - Exportar y usar en `AgregarCarritoBtn` antes del POST
 
-- [ ] **EPIC-07-10** — Componente `AgregarCarritoBtn` 🔴
+- [x] **EPIC-07-10** — Componente `AgregarCarritoBtn` 🔴
   - → Spec: CU-06, DS-03, `06-api-contracts.md §3`
   - → Log: Phase 2 (2026-03-16) — campos `Color` y `ColorHex` ya incluidos en el DTO
   - Al hacer clic:
@@ -177,7 +177,7 @@
 
 ## Build e Integración con Razor
 
-- [ ] **EPIC-07-11** — Build de producción e integración con `Detalle.cshtml` 🔴
+- [x] **EPIC-07-11** — Build de producción e integración con `Detalle.cshtml` 🔴
   - → Spec: TASK-000-05
   - Configurar script de build para generar archivos en `wwwroot/configurador/`
   - En `Views/Productos/Detalle.cshtml` (`@section Scripts`):

@@ -1,0 +1,53 @@
+.linea-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 4px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.linea-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.linea-card:hover {
+    transform: translateY(-2px);
+    border-color: #555;
+}
+
+.color-swatches {
+    display: flex;
+    margin-right: 12px;
+}
+
+.swatch {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}
+
+.swatch:first-child {
+    margin-right: -10px;
+}
+
+.linea-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.linea-nombre {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.linea-operador {
+    font-size: 0.8rem;
+}

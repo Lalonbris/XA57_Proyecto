@@ -12,12 +12,11 @@
          data-permite-nombre="@(Model.TipoProducto?.PermiteNombre.ToString().ToLower() ?? "true")"
          data-permite-numero-economico="@(Model.TipoProducto?.PermiteNumeroEconomico.ToString().ToLower() ?? "true")"
          data-permite-ruta="@(Model.TipoProducto?.PermiteRuta.ToString().ToLower() ?? "true")"
-         data-max-caracteres="@(Model.TipoProducto?.MaxCaracteres ?? 20)"
-         style="display: flex; gap: 40px; width: 100%;">
+         data-max-caracteres="@(Model.TipoProducto?.MaxCaracteres ?? 20)">
     </div>
 
 </div>
 
 @section Scripts {
-    <script src="~/react/static/js/main.0cbc8b5f.js"></script>
+    <script src="~/configurador/static/js/main.js"></script>
 }
