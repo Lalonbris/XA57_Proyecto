@@ -18,17 +18,26 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             _context.Productos
                 .Where(p => p.Activo)
                 .Include(p => p.TipoProducto)
+                .Include(p => p.Linea)
+                .ToListAsync();
+
+        public Task<List<Producto>> ObtenerTodosAdminAsync() =>
+            _context.Productos
+                .Include(p => p.TipoProducto)
+                .Include(p => p.Linea)
                 .ToListAsync();
 
         public Task<List<Producto>> ObtenerPorTipoAsync(int tipoProductoId) =>
             _context.Productos
                 .Where(p => p.Activo && p.TipoProductoId == tipoProductoId)
                 .Include(p => p.TipoProducto)
+                .Include(p => p.Linea)
                 .ToListAsync();
 
         public async Task<Producto?> ObtenerPorIdAsync(int id) =>
             await _context.Productos
                 .Include(p => p.TipoProducto)
+                .Include(p => p.Linea)
                 .FirstOrDefaultAsync(p => p.Id == id);
         
         public async Task<Producto> AgregarAsync(Producto producto)
@@ -40,7 +49,21 @@ namespace XA57_Proyecto.Infrastructure.Repositories
 
         public async Task ActualizarAsync(Producto producto)
         {
-            _context.Entry(producto).State = EntityState.Modified;
+            var productoExistente = await _context.Productos.FindAsync(producto.Id);
+            if (productoExistente == null)
+            {
+                throw new InvalidOperationException("Producto no encontrado");
+            }
+
+            productoExistente.Nombre = producto.Nombre;
+            productoExistente.Descripcion = producto.Descripcion;
+            productoExistente.Precio = producto.Precio;
+            productoExistente.ImagenUrl = producto.ImagenUrl;
+            productoExistente.TipoProductoId = producto.TipoProductoId;
+            productoExistente.LineaId = producto.LineaId;
+            productoExistente.Tamano = producto.Tamano;
+            productoExistente.Activo = producto.Activo;
+
             await _context.SaveChangesAsync();
         }
 

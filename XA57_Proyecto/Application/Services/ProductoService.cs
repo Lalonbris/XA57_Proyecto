@@ -9,14 +9,21 @@ namespace XA57_Proyecto.Application.Services
     {
         private readonly IProductoRepository _repo;
         private readonly ITipoProductoRepository _tipoProductoRepo;
+        private readonly ILineaRepository _lineaRepo;
 
-        public ProductoService(IProductoRepository repo, ITipoProductoRepository tipoProductoRepo)
+        public ProductoService(
+            IProductoRepository repo, 
+            ITipoProductoRepository tipoProductoRepo,
+            ILineaRepository lineaRepo)
         {
             _repo = repo;
             _tipoProductoRepo = tipoProductoRepo;
+            _lineaRepo = lineaRepo;
         }
 
         public Task<List<Producto>> ObtenerTodosAsync() => _repo.ObtenerTodosAsync();
+
+        public Task<List<Producto>> ObtenerTodosAdminAsync() => _repo.ObtenerTodosAdminAsync();
 
         public Task<List<Producto>> ObtenerPorTipoAsync(int tipoProductoId) => _repo.ObtenerPorTipoAsync(tipoProductoId);
 
@@ -45,6 +52,15 @@ namespace XA57_Proyecto.Application.Services
                 if (tipoProducto == null)
                 {
                     throw new ValidationException("El tipo de producto especificado no es válido.");
+                }
+            }
+
+            if (producto.LineaId.HasValue)
+            {
+                var linea = await _lineaRepo.ObtenerPorIdAsync(producto.LineaId.Value);
+                if (linea == null)
+                {
+                    throw new ValidationException("La línea especificada no es válida.");
                 }
             }
 
@@ -80,6 +96,15 @@ namespace XA57_Proyecto.Application.Services
                 if (tipoProducto == null)
                 {
                     throw new ValidationException("El tipo de producto especificado no es válido.");
+                }
+            }
+
+            if (producto.LineaId.HasValue)
+            {
+                var linea = await _lineaRepo.ObtenerPorIdAsync(producto.LineaId.Value);
+                if (linea == null)
+                {
+                    throw new ValidationException("La línea especificada no es válida.");
                 }
             }
 

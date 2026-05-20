@@ -1,6 +1,7 @@
 @model IEnumerable<XA57_Proyecto.Domain.Entities.TipoProducto>
 @{
     ViewData["Title"] = "Administrar Tipos de Producto";
+    Layout = "_AdminLayout";
 }
 
 <div class="container mt-4">
@@ -27,13 +28,13 @@
             <tbody>
                 @foreach (var tipo in Model)
                 {
-                    <tr>
+                    <tr data-id="@tipo.Id">
                         <td>@tipo.Id</td>
-                        <td>@tipo.Nombre</td>
-                        <td>@tipo.MaxCaracteres</td>
-                        <td>@(tipo.PermiteNombre ? "Sí" : "No")</td>
-                        <td>@(tipo.PermiteNumeroEconomico ? "Sí" : "No")</td>
-                        <td>@(tipo.PermiteRuta ? "Sí" : "No")</td>
+                        <td class="col-nombre">@tipo.Nombre</td>
+                        <td class="col-max">@tipo.MaxCaracteres</td>
+                        <td class="col-nombre-p">@(tipo.PermiteNombre ? "Sí" : "No")</td>
+                        <td class="col-eco-p">@(tipo.PermiteNumeroEconomico ? "Sí" : "No")</td>
+                        <td class="col-ruta-p">@(tipo.PermiteRuta ? "Sí" : "No")</td>
                         <td>
                             <button class="xa57-btn-icon" onclick="editarTipo(@tipo.Id)">
                                 <i class="material-icons">edit</i>
@@ -49,7 +50,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="tipoModal" tabindex="-1">
+<div class="modal fade" id="tipoModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="xa57-modal-content">
             <div class="xa57-modal-header">
@@ -213,7 +214,7 @@
 }
 
 .xa57-btn-close::before {
-    content: '\e5cd';
+    content: '\\e5cd';
     font-family: 'Material Icons';
     font-size: 20px;
 }
@@ -293,6 +294,22 @@
     color: var(--tx-1);
     cursor: pointer;
 }
+.modal {
+    z-index: 1050 !important;
+    pointer-events: auto !important;
+}
+
+.modal-dialog {
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal-show {
+    display: block !important;
+}
 </style>
 
 <script>
@@ -302,7 +319,11 @@ function limpiarFormulario() {
 }
 
 async function editarTipo(id) {
-    const response = await fetch(`/Admin/TipoDetalle?id=${id}`);
+    const response = await fetch(`/Admin/ObtenerTipoProducto?id=${id}`);
+    if (!response.ok) {
+        alert('Error al cargar el tipo');
+        return;
+    }
     const tipo = await response.json();
     
     document.getElementById('tipoId').value = tipo.id;
@@ -318,8 +339,16 @@ async function editarTipo(id) {
 
 async function eliminarTipo(id) {
     if (confirm('¿Está seguro de eliminar este tipo?')) {
-        await fetch(`/Admin/EliminarTipoProducto?id=${id}`, { method: 'DELETE' });
-        location.reload();
+        const response = await fetch(`/Admin/EliminarTipoProducto?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            const fila = document.querySelector(`#tiposTable tbody tr[data-id="${id}"]`);
+            if (fila) {
+                fila.remove(); // En este caso eliminamos la fila ya que no hay soft delete visible aquí
+            }
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Error al eliminar el tipo');
+        }
     }
 }
 
@@ -338,7 +367,61 @@ document.getElementById('tipoForm').addEventListener('submit', async (e) => {
     const url = id == '0' ? '/Admin/CrearTipoProducto' : `/Admin/EditarTipoProducto?id=${id}`;
     const method = id == '0' ? 'POST' : 'PUT';
     
-    await fetch(url, { method, body: JSON.stringify(tipo) });
-    location.reload();
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tipo)
+    });
+    
+    if (response.ok) {
+        const modalElement = document.getElementById('tipoModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        
+        if (id == '0') {
+            const nuevoTipo = await response.json();
+            agregarFilaTabla(nuevoTipo);
+        } else {
+            actualizarFilaTabla(tipo);
+        }
+    } else {
+        const data = await response.json();
+        alert(data.message || 'Error al guardar el tipo');
+    }
 });
+
+function agregarFilaTabla(t) {
+    const tbody = document.querySelector('#tiposTable tbody');
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', t.id);
+    
+    tr.innerHTML = `
+        <td>${t.id}</td>
+        <td class="col-nombre">${t.nombre}</td>
+        <td class="col-max">${t.maxCaracteres}</td>
+        <td class="col-nombre-p">${t.permiteNombre ? "Sí" : "No"}</td>
+        <td class="col-eco-p">${t.permiteNumeroEconomico ? "Sí" : "No"}</td>
+        <td class="col-ruta-p">${t.permiteRuta ? "Sí" : "No"}</td>
+        <td>
+            <button class="xa57-btn-icon" onclick="editarTipo(${t.id})">
+                <i class="material-icons">edit</i>
+            </button>
+            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarTipo(${t.id})">
+                <i class="material-icons">delete</i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function actualizarFilaTabla(t) {
+    const fila = document.querySelector(`#tiposTable tbody tr[data-id="${t.id}"]`);
+    if (!fila) return;
+    
+    fila.querySelector('.col-nombre').textContent = t.nombre;
+    fila.querySelector('.col-max').textContent = t.maxCaracteres;
+    fila.querySelector('.col-nombre-p').textContent = t.permiteNombre ? "Sí" : "No";
+    fila.querySelector('.col-eco-p').textContent = t.permiteNumeroEconomico ? "Sí" : "No";
+    fila.querySelector('.col-ruta-p').textContent = t.permiteRuta ? "Sí" : "No";
+}
 </script>

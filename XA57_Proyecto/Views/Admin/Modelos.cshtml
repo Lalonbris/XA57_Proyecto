@@ -1,46 +1,41 @@
-@model IEnumerable<XA57_Proyecto.Domain.Entities.Linea>
+@model IEnumerable<XA57_Proyecto.Domain.Entities.ModeloAutobus>
 @{
-    ViewData["Title"] = "Administrar Lííneas";
+    ViewData["Title"] = "Administrar Modelos de Autobús";
     Layout = "_AdminLayout";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="xa57-title">Líneas</h1>
-        <button class="btn btn-xa57-primary" data-bs-toggle="modal" data-bs-target="#lineaModal" onclick="limpiarFormulario()">
-            <i class="material-icons">add</i> Nueva Línea
+        <h1 class="xa57-title">Modelos de Autobús</h1>
+        <button class="btn btn-xa57-primary" data-bs-toggle="modal" data-bs-target="#modeloModal" onclick="limpiarFormulario()">
+            <i class="material-icons">add</i> Nuevo Modelo
         </button>
     </div>
     
     <div class="xa57-table-container">
-        <table class="xa57-table" id="lineasTable">
+        <table class="xa57-table" id="modelosTable">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
-                    <th>Operador</th>
-                    <th>Color Primario</th>
+                    <th>Fabricante</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var linea in Model)
+                @foreach (var modelo in Model)
                 {
-                    <tr data-id="@linea.Id">
-                        <td>@linea.Id</td>
-                        <td class="col-nombre">@linea.Nombre</td>
-                        <td class="col-operador">@linea.NombreOperador</td>
-                        <td class="col-color">
-                            <span class="color-swatch" style="background:@linea.ColorPrimario;"></span>
-                            <span class="color-value">@linea.ColorPrimario</span>
-                        </td>
-                        <td class="col-estado">@(linea.Activa ? "Activa" : "Inactiva")</td>
+                    <tr data-id="@modelo.Id">
+                        <td>@modelo.Id</td>
+                        <td class="col-nombre">@modelo.Nombre</td>
+                        <td class="col-fabricante">@modelo.Fabricante</td>
+                        <td class="col-estado">@(modelo.Activo ? "Activo" : "Inactivo")</td>
                         <td>
-                            <button class="xa57-btn-icon" onclick="editarLinea(@linea.Id)">
+                            <button class="xa57-btn-icon" onclick="editarModelo(@modelo.Id)">
                                 <i class="material-icons">edit</i>
                             </button>
-                            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarLinea(@linea.Id)">
+                            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarModelo(@modelo.Id)">
                                 <i class="material-icons">delete</i>
                             </button>
                         </td>
@@ -51,40 +46,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="lineaModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modeloModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="xa57-modal-content">
             <div class="xa57-modal-header">
-                <h5 class="xa57-modal-title">Nueva Línea</h5>
+                <h5 class="xa57-modal-title">Nuevo Modelo</h5>
                 <button type="button" class="xa57-btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="lineaForm">
+            <form id="modeloForm">
                 <div class="xa57-modal-body">
-                    <input type="hidden" id="lineaId" name="Id" />
+                    <input type="hidden" id="modeloId" name="Id" />
                     <div class="xa57-form-group">
                         <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="lineaNombre" name="Nombre" required />
+                        <input type="text" class="form-control" id="modeloNombre" name="Nombre" required />
                     </div>
                     <div class="xa57-form-group">
-                        <label class="form-label">Nombre del Operador</label>
-                        <input type="text" class="form-control" id="lineaNombreOperador" name="NombreOperador" />
-                    </div>
-                    <div class="xa57-form-group">
-                        <label class="form-label">Color Primario</label>
-                        <input type="color" class="form-control" id="lineaColorPrimario" name="ColorPrimario" style="height:44px;padding:4px;" />
-                    </div>
-                    <div class="xa57-form-group">
-                        <label class="form-label">Color Secundario</label>
-                        <input type="color" class="form-control" id="lineaColorSecundario" name="ColorSecundario" style="height:44px;padding:4px;" />
-                    </div>
-                    <div class="xa57-form-group">
-                        <label class="form-label">Logo URL</label>
-                        <input type="text" class="form-control" id="lineaLogoUrl" name="LogoUrl" />
+                        <label class="form-label">Fabricante</label>
+                        <input type="text" class="form-control" id="modeloFabricante" name="Fabricante" required />
                     </div>
                     <div class="xa57-form-group">
                         <div class="xa57-form-check">
-                            <input type="checkbox" class="form-check-input" id="lineaActiva" name="Activa" checked />
-                            <label class="form-check-label">Activa</label>
+                            <input type="checkbox" class="form-check-input" id="modeloActivo" name="Activo" checked />
+                            <label class="form-check-label">Activo</label>
                         </div>
                     </div>
                 </div>
@@ -98,16 +81,7 @@
 </div>
 
 <style>
-.color-swatch {
-    display:inline-block;
-    width:20px;
-    height:20px;
-    border-radius:3px;
-    vertical-align:middle;
-    margin-right:8px;
-    border:1px solid var(--bd-1);
-}
-
+/* Estilos consistentes con Productos y Lineas */
 .xa57-table-container {
     background: var(--bg-2);
     border: 1px solid var(--bd-1);
@@ -244,7 +218,7 @@
 }
 
 .xa57-btn-close::before {
-    content: '\e5cd';
+    content: '\\e5cd';
     font-family: 'Material Icons';
     font-size: 20px;
 }
@@ -283,10 +257,6 @@
     border-color: var(--bd-3);
     background: var(--bg-4);
     box-shadow: none;
-}
-
-.xa57-form-group .form-control::placeholder {
-    color: var(--tx-3);
 }
 
 .xa57-form-group .form-label {
@@ -344,107 +314,97 @@
 
 <script>
 function limpiarFormulario() {
-    document.getElementById('lineaForm').reset();
-    document.getElementById('lineaId').value = '0';
+    document.getElementById('modeloForm').reset();
+    document.getElementById('modeloId').value = '0';
 }
 
-async function editarLinea(id) {
-    const response = await fetch(`/Admin/ObtenerLinea?id=${id}`);
+async function editarModelo(id) {
+    const response = await fetch(`/Admin/ObtenerModelo?id=${id}`);
     if (!response.ok) {
-        alert('Error al cargar la línea');
+        alert('Error al cargar el modelo');
         return;
     }
-    const linea = await response.json();
+    const modelo = await response.json();
     
-    document.getElementById('lineaId').value = linea.id;
-    document.getElementById('lineaNombre').value = linea.nombre;
-    document.getElementById('lineaNombreOperador').value = linea.nombreOperador || '';
-    document.getElementById('lineaColorPrimario').value = linea.colorPrimario || '#000000';
-    document.getElementById('lineaColorSecundario').value = linea.colorSecundario || '#ffffff';
-    document.getElementById('lineaLogoUrl').value = linea.logoUrl || '';
-    document.getElementById('lineaActiva').checked = linea.activa;
+    document.getElementById('modeloId').value = modelo.id;
+    document.getElementById('modeloNombre').value = modelo.nombre;
+    document.getElementById('modeloFabricante').value = modelo.fabricante;
+    document.getElementById('modeloActivo').checked = modelo.activo;
     
-    const modal = new bootstrap.Modal(document.getElementById('lineaModal'));
+    const modal = new bootstrap.Modal(document.getElementById('modeloModal'));
     modal.show();
 }
 
-async function eliminarLinea(id) {
-    if (confirm('¿Está seguro de eliminar esta línea?')) {
-        const response = await fetch(`/Admin/EliminarLinea?id=${id}`, { method: 'DELETE' });
+async function eliminarModelo(id) {
+    if (confirm('¿Está seguro de eliminar este modelo?')) {
+        const response = await fetch(`/Admin/EliminarModelo?id=${id}`, { method: 'DELETE' });
         if (response.ok) {
-            const fila = document.querySelector(`#lineasTable tbody tr[data-id="${id}"]`);
-                if (fila) {
-                    fila.remove();
-                }
+            const fila = document.querySelector(`#modelosTable tbody tr[data-id="${id}"]`);
+            if (fila) {
+                fila.remove();
+            }
         } else {
             const data = await response.json();
-            alert(data.message || 'Error al eliminar la línea');
+            alert(data.message || 'Error al eliminar el modelo');
         }
     }
 }
 
-document.getElementById('lineaForm').addEventListener('submit', async (e) => {
+document.getElementById('modeloForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('lineaId').value;
-    const linea = {
+    const id = document.getElementById('modeloId').value;
+    const modelo = {
         id: parseInt(id) || 0,
-        nombre: document.getElementById('lineaNombre').value,
-        nombreOperador: document.getElementById('lineaNombreOperador').value,
-        colorPrimario: document.getElementById('lineaColorPrimario').value,
-        colorSecundario: document.getElementById('lineaColorSecundario').value,
-        logoUrl: document.getElementById('lineaLogoUrl').value,
-        activa: document.getElementById('lineaActiva').checked
+        nombre: document.getElementById('modeloNombre').value,
+        fabricante: document.getElementById('modeloFabricante').value,
+        activo: document.getElementById('modeloActivo').checked
     };
     
-    const url = id == '0' ? '/Admin/CrearLinea' : `/Admin/EditarLinea?id=${id}`;
+    const url = id == '0' ? '/Admin/CrearModelo' : `/Admin/EditarModelo?id=${id}`;
     const method = id == '0' ? 'POST' : 'PUT';
     
     const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(linea)
+        body: JSON.stringify(modelo)
     });
     
     if (response.ok) {
-        const modalElement = document.getElementById('lineaModal');
+        const modalElement = document.getElementById('modeloModal');
         const modal = bootstrap.Modal.getInstance(modalElement);
         modal.hide();
         
         if (id == '0') {
-            const nuevaLinea = await response.json();
-            agregarFilaTabla(nuevaLinea);
+            const nuevoModelo = await response.json();
+            agregarFilaTabla(nuevoModelo);
         } else {
-            actualizarFilaTabla(linea);
+            actualizarFilaTabla(modelo);
         }
     } else {
         const data = await response.json();
-        alert(data.message || 'Error al guardar la línea');
+        alert(data.message || 'Error al guardar el modelo');
     }
 });
 
-function agregarFilaTabla(l) {
-    const tbody = document.querySelector('#lineasTable tbody');
+function agregarFilaTabla(m) {
+    const tbody = document.querySelector('#modelosTable tbody');
     const tr = document.createElement('tr');
-    tr.setAttribute('data-id', l.id);
+    tr.setAttribute('data-id', m.id);
     
     tr.innerHTML = `
-        <td>${l.id}</td>
-        <td class="col-nombre">${l.nombre}</td>
-        <td class="col-operador">${l.nombreOperador || ''}</td>
-        <td class="col-color">
-            <span class="color-swatch" style="background:${l.colorPrimario};"></span>
-            <span class="color-value">${l.colorPrimario}</span>
-        </td>
+        <td>${m.id}</td>
+        <td class="col-nombre">${m.nombre}</td>
+        <td class="col-fabricante">${m.fabricante}</td>
         <td class="col-estado">
-            <span class="xa57-badge${l.activa ? " xa57-badge--active" : " xa57-badge--inactive"}">
-                ${l.activa ? "Activa" : "Inactiva"}
+            <span class="xa57-badge${m.activo ? " xa57-badge--active" : " xa57-badge--inactive"}">
+                ${m.activo ? "Activo" : "Inactivo"}
             </span>
         </td>
         <td>
-            <button class="xa57-btn-icon" onclick="editarLinea(${l.id})">
+            <button class="xa57-btn-icon" onclick="editarModelo(${m.id})">
                 <i class="material-icons">edit</i>
             </button>
-            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarLinea(${l.id})">
+            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarModelo(${m.id})">
                 <i class="material-icons">delete</i>
             </button>
         </td>
@@ -452,17 +412,15 @@ function agregarFilaTabla(l) {
     tbody.appendChild(tr);
 }
 
-function actualizarFilaTabla(l) {
-    const fila = document.querySelector(`#lineasTable tbody tr[data-id="${l.id}"]`);
+function actualizarFilaTabla(m) {
+    const fila = document.querySelector(`#modelosTable tbody tr[data-id="${m.id}"]`);
     if (!fila) return;
     
-    fila.querySelector('.col-nombre').textContent = l.nombre;
-    fila.querySelector('.col-operador').textContent = l.nombreOperador || '';
-    fila.querySelector('.color-swatch').style.background = l.colorPrimario;
-    fila.querySelector('.color-value').textContent = l.colorPrimario;
+    fila.querySelector('.col-nombre').textContent = m.nombre;
+    fila.querySelector('.col-fabricante').textContent = m.fabricante;
     
     const badge = fila.querySelector('.xa57-badge');
-    badge.className = `xa57-badge${l.activa ? " xa57-badge--active" : " xa57-badge--inactive"}`;
-    badge.textContent = l.activa ? "Activa" : "Inactiva";
+    badge.className = `xa57-badge${m.activo ? " xa57-badge--active" : " xa57-badge--inactive"}`;
+    badge.textContent = m.activo ? "Activo" : "Inactivo";
 }
 </script>

@@ -5,6 +5,7 @@ namespace XA57_Proyecto.Application.Interfaces
     public interface IProductoService
     {
         Task<List<Producto>> ObtenerTodosAsync();
+        Task<List<Producto>> ObtenerTodosAdminAsync();
         Task<List<Producto>> ObtenerPorTipoAsync(int tipoProductoId);
         Task<Producto?> ObtenerPorIdAsync(int id);
         Task<Producto> AgregarAsync(Producto producto);

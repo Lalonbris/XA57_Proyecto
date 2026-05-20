@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Domain.Entities;
 using XA57_Proyecto.Infrastructure.Data;
@@ -10,6 +11,9 @@ namespace XA57_Proyecto.Application.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private static readonly Regex EmailRegex = new(
+            @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+            RegexOptions.Compiled);
 
         public UsuarioAdminService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -28,11 +32,31 @@ namespace XA57_Proyecto.Application.Services
 
         public async Task<IdentityResult> CrearUsuarioAsync(ApplicationUser user, string password)
         {
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "El correo no puede estar vacío" });
+            }
+
+            if (!EsCorreoValido(user.Email))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "El formato del correo no es válido" });
+            }
+
             return await _userManager.CreateAsync(user, password);
         }
 
         public async Task<IdentityResult> ActualizarUsuarioAsync(ApplicationUser user)
         {
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "El correo no puede estar vacío" });
+            }
+
+            if (!EsCorreoValido(user.Email))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "El formato del correo no es válido" });
+            }
+
             return await _userManager.UpdateAsync(user);
         }
 
@@ -71,5 +95,10 @@ namespace XA57_Proyecto.Application.Services
 
         public Task<List<string>> ObtenerTodosLosRolesAsync() =>
             _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+
+        private static bool EsCorreoValido(string correo)
+        {
+            return EmailRegex.IsMatch(correo);
+        }
     }
 }

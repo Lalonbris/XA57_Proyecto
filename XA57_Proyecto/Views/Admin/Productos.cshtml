@@ -1,6 +1,7 @@
 @model IEnumerable<XA57_Proyecto.Domain.Entities.Producto>
 @{
     ViewData["Title"] = "Administrar Productos";
+    Layout = "_AdminLayout";
 }
 
 <div class="container mt-4">
@@ -17,6 +18,8 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
+                    <th>Tamaño</th>
+                    <th>Línea</th>
                     <th>Precio</th>
                     <th>Tipo</th>
                     <th>Estado</th>
@@ -26,16 +29,14 @@
             <tbody>
                 @foreach (var producto in Model)
                 {
-                    <tr>
+                    <tr data-id="@producto.Id">
                         <td>@producto.Id</td>
-                        <td>@producto.Nombre</td>
-                        <td>$@producto.Precio.ToString("N2")</td>
-                        <td>@producto.TipoProducto?.Nombre</td>
-                        <td>
-                            <span class="xa57-badge@(producto.Activo ? " xa57-badge--active" : " xa57-badge--inactive")">
-                                @(producto.Activo ? "Activo" : "Inactivo")
-                            </span>
-                        </td>
+                        <td class="col-nombre">@producto.Nombre</td>
+                        <td class="col-tamano">@producto.Tamano</td>
+                        <td class="col-linea">@producto.Linea?.Nombre</td>
+                        <td class="col-precio">$@producto.Precio.ToString("N2")</td>
+                        <td class="col-tipo">@producto.TipoProducto?.Nombre</td>
+                        <td class="col-estado">@(producto.Activo ? "Activo" : "Inactivo")</td>
                         <td>
                             <button class="xa57-btn-icon" onclick="editarProducto(@producto.Id)">
                                 <i class="material-icons">edit</i>
@@ -51,7 +52,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="productoModal" tabindex="-1">
+<div class="modal fade" id="productoModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="xa57-modal-content">
             <div class="xa57-modal-header">
@@ -78,8 +79,18 @@
                         <input type="text" class="form-control" id="productoImagenUrl" name="ImagenUrl" />
                     </div>
                     <div class="xa57-form-group">
+                        <label class="form-label">Tamaño</label>
+                        <input type="text" class="form-control" id="productoTamano" name="Tamano" placeholder="Ej: Grande, XL, 20cm" />
+                    </div>
+                    <div class="xa57-form-group">
                         <label class="form-label">Tipo de Producto</label>
                         <select class="form-select" id="productoTipoProductoId" name="TipoProductoId">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="xa57-form-group">
+                        <label class="form-label">Línea</label>
+                        <select class="form-select" id="productoLineaId" name="LineaId">
                             <option value="">Seleccionar...</option>
                         </select>
                     </div>
@@ -100,6 +111,23 @@
 </div>
 
 <style>
+.modal {
+    z-index: 1050 !important;
+    pointer-events: auto !important;
+}
+
+.modal-dialog {
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal-show {
+    display: block !important;
+}
+
 .xa57-table-container {
     background: var(--bg-2);
     border: 1px solid var(--bd-1);
@@ -334,15 +362,35 @@ async function cargarTiposProducto() {
     });
 }
 
+async function cargarLineas() {
+    const response = await fetch('/Admin/ObtenerLineas');
+    const lineas = await response.json();
+    const select = document.getElementById('productoLineaId');
+    select.innerHTML = '<option value="">Seleccionar...</option>';
+    lineas.forEach(linea => {
+        const option = document.createElement('option');
+        option.value = linea.id;
+        option.textContent = linea.nombre;
+        select.appendChild(option);
+    });
+}
+
 cargarTiposProducto();
+cargarLineas();
 
 function limpiarFormulario() {
     document.getElementById('productoForm').reset();
     document.getElementById('productoId').value = '0';
+    document.getElementById('productoLineaId').value = '';
+    document.getElementById('productoTipoProductoId').value = '';
 }
 
 async function editarProducto(id) {
-    const response = await fetch(`/Admin/ProductoDetalle?id=${id}`);
+    const response = await fetch(`/Admin/ObtenerProducto?id=${id}`);
+    if (!response.ok) {
+        alert('Error al cargar el producto');
+        return;
+    }
     const producto = await response.json();
     
     document.getElementById('productoId').value = producto.id;
@@ -350,7 +398,11 @@ async function editarProducto(id) {
     document.getElementById('productoDescripcion').value = producto.descripcion || '';
     document.getElementById('productoPrecio').value = producto.precio;
     document.getElementById('productoImagenUrl').value = producto.imagenUrl || '';
+    document.getElementById('productoTamano').value = producto.tamano || '';
     document.getElementById('productoActivo').checked = producto.activo;
+    
+    document.getElementById('productoTipoProductoId').value = producto.tipoProductoId || '';
+    document.getElementById('productoLineaId').value = producto.lineaId || '';
     
     const modal = new bootstrap.Modal(document.getElementById('productoModal'));
     modal.show();
@@ -358,8 +410,17 @@ async function editarProducto(id) {
 
 async function eliminarProducto(id) {
     if (confirm('¿Está seguro de eliminar este producto?')) {
-        await fetch(`/Admin/EliminarProducto?id=${id}`, { method: 'DELETE' });
-        location.reload();
+        const response = await fetch(`/Admin/EliminarProducto?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            // Actualizar la fila en la tabla para mostrar que está inactivo
+            const fila = document.querySelector(`#productosTable tbody tr[data-id="${id}"]`);
+            if (fila) {
+                fila.remove();
+            }
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Error al eliminar el producto');
+        }
     }
 }
 
@@ -372,13 +433,89 @@ document.getElementById('productoForm').addEventListener('submit', async (e) => 
         descripcion: document.getElementById('productoDescripcion').value,
         precio: parseFloat(document.getElementById('productoPrecio').value),
         imagenUrl: document.getElementById('productoImagenUrl').value,
+        tamano: document.getElementById('productoTamano').value,
+        tipoProductoId: parseInt(document.getElementById('productoTipoProductoId').value) || null,
+        lineaId: parseInt(document.getElementById('productoLineaId').value) || null,
         activo: document.getElementById('productoActivo').checked
     };
     
     const url = id == '0' ? '/Admin/CrearProducto' : `/Admin/EditarProducto?id=${id}`;
     const method = id == '0' ? 'POST' : 'PUT';
     
-    await fetch(url, { method, body: JSON.stringify(producto) });
-    location.reload();
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(producto)
+    });
+    
+    if (response.ok) {
+        const modalElement = document.getElementById('productoModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        
+        if (id == '0') {
+            const nuevoProducto = await response.json();
+            agregarFilaTabla(nuevoProducto);
+        } else {
+            actualizarFilaTabla(producto);
+        }
+    } else {
+        const data = await response.json();
+        let errorMsg = 'Error al guardar el producto';
+        if (data.message) errorMsg = data.message;
+        else if (data.errors) errorMsg = Object.values(data.errors).flat().join('\n');
+        
+        alert(errorMsg);
+    }
 });
+
+function agregarFilaTabla(p) {
+    const tbody = document.querySelector('#productosTable tbody');
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', p.id);
+    
+    const tipoNombre = document.querySelector(`#productoTipoProductoId option[value="${p.tipoProductoId}"]`)?.textContent || '';
+    const lineaNombre = document.querySelector(`#productoLineaId option[value="${p.lineaId}"]`)?.textContent || '';
+    
+    tr.innerHTML = `
+        <td>${p.id}</td>
+        <td class="col-nombre">${p.nombre}</td>
+        <td class="col-tamano">${p.tamano || ''}</td>
+        <td class="col-linea">${lineaNombre}</td>
+        <td class="col-precio">$${p.precio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        <td class="col-tipo">${tipoNombre}</td>
+        <td class="col-estado">
+            <span class="xa57-badge${p.activo ? " xa57-badge--active" : " xa57-badge--inactive"}">
+                ${p.activo ? "Activo" : "Inactivo"}
+            </span>
+        </td>
+        <td>
+            <button class="xa57-btn-icon" onclick="editarProducto(${p.id})">
+                <i class="material-icons">edit</i>
+            </button>
+            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarProducto(${p.id})">
+                <i class="material-icons">delete</i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function actualizarFilaTabla(p) {
+    const fila = document.querySelector(`#productosTable tbody tr[data-id="${p.id}"]`);
+    if (!fila) return;
+    
+    const tipoNombre = document.querySelector(`#productoTipoProductoId option[value="${p.tipoProductoId}"]`)?.textContent || '';
+    const lineaNombre = document.querySelector(`#productoLineaId option[value="${p.lineaId}"]`)?.textContent || '';
+    
+    fila.querySelector('.col-nombre').textContent = p.nombre;
+    fila.querySelector('.col-tamano').textContent = p.tamano || '';
+    fila.querySelector('.col-linea').textContent = lineaNombre;
+    fila.querySelector('.col-precio').textContent = `$${p.precio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    fila.querySelector('.col-tipo').textContent = tipoNombre;
+    
+    const badge = fila.querySelector('.xa57-badge');
+    badge.className = `xa57-badge${p.activo ? " xa57-badge--active" : " xa57-badge--inactive"}`;
+    badge.textContent = p.activo ? "Activo" : "Inactivo";
+}
 </script>

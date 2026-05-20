@@ -1,0 +1,175 @@
+@model XA57_Proyecto.Domain.Entities.Pedido
+@{
+    Layout = null; // No layout for print view
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Picking - Pedido #@Model.Id</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background: white;
+            color: black;
+            font-family: 'Inter', sans-serif;
+            padding: 40px;
+        }
+
+        .picking-header {
+            border-bottom: 2px solid black;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .picking-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .picking-id {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .picking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .picking-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .picking-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .picking-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 1px solid black;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .picking-footer {
+            margin-top: 50px;
+            border-top: 1px solid black;
+            padding-top: 10px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        @@media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+            @@page { margin: 1cm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="margin-bottom: 20px;">
+        <button onclick="window.print()" class="btn btn-xa57-primary">Imprimir Lista</button>
+        <button onclick="window.close()" class="btn btn-xa57-secondary">Cerrar</button>
+    </div>
+
+    <div class="picking-header">
+        <div>
+            <h1 class="picking-title">Lista de Picking</h1>
+            <p style="margin: 5px 0 0 0;">XA57 — E-Commerce Administrativo</p>
+        </div>
+        <div class="picking-id">PEDIDO #@Model.Id</div>
+    </div>
+
+    <div class="picking-grid">
+        <div class="picking-item">
+            <span class="picking-label">Producto</span>
+            <span class="picking-value">@Model.Producto?.Nombre (@Model.Producto?.TipoProducto?.Nombre)</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Cantidad</span>
+            <span class="picking-value">@Model.Cantidad unidades</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Modelo de Autobús</span>
+            <span class="picking-value">@(Model.ModeloAutobus?.Nombre ?? "N/A") (@(Model.ModeloAutobus?.Fabricante ?? ""))</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Línea / Cromática</span>
+            <span class="picking-value">@(Model.Linea?.Nombre ?? "N/A")</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Color Seleccionado</span>
+            <span class="picking-value">
+                @if (!string.IsNullOrEmpty(Model.ColorHex))
+                {
+                    <span class="color-swatch" style="background: @Model.ColorHex;"></span>
+                }
+                @Model.Color (@Model.ColorHex)
+            </span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Nombre del Operador</span>
+            <span class="picking-value">@(Model.NombreOperador ?? "N/A")</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Número Económico</span>
+            <span class="picking-value">@(Model.NumeroEconomico ?? "N/A")</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Ruta / Destino</span>
+            <span class="picking-value">@(Model.Ruta ?? "N/A")</span>
+        </div>
+    </div>
+
+    <div class="picking-item" style="border-bottom: none;">
+        <span class="picking-label">Notas Especiales</span>
+        <div class="picking-value" style="background: #f9f9f9; padding: 15px; border-radius: 5px; min-height: 80px;">
+            @(Model.NotasEspeciales ?? "Sin notas adicionales.")
+        </div>
+    </div>
+
+    <div class="picking-grid" style="margin-top: 30px;">
+        <div class="picking-item">
+            <span class="picking-label">Fecha del Pedido</span>
+            <span class="picking-value">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+        <div class="picking-item">
+            <span class="picking-label">Estado Actual</span>
+            <span class="picking-value">@Model.Estado</span>
+        </div>
+    </div>
+
+    <div class="picking-footer">
+        Documento generado automáticamente para el área de manufactura.
+        © 2026 XA57 — Todos los derechos reservados.
+    </div>
+
+    <script>
+        // Auto-open print dialog if needed
+        // window.print();
+    </script>
+</body>
+</html>

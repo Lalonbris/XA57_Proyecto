@@ -31,7 +31,12 @@ builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
 builder.Services.AddScoped<ITipoProductoService, TipoProductoService>();
 builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 builder.Services.AddCors(options =>
 {

@@ -1,6 +1,7 @@
 @model IEnumerable<XA57_Proyecto.Domain.Entities.ApplicationUser>
 @{
     ViewData["Title"] = "Administrar Usuarios";
+    Layout = "_AdminLayout";
 }
 
 <div class="container mt-4">
@@ -15,7 +16,6 @@
         <table class="xa57-table" id="usuariosTable">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Usuario</th>
                     <th>Email</th>
                     <th>Nombre</th>
@@ -26,12 +26,11 @@
             <tbody>
                 @foreach (var usuario in Model)
                 {
-                    <tr>
-                        <td>@usuario.Id</td>
-                        <td>@usuario.UserName</td>
-                        <td>@usuario.Email</td>
-                        <td>@usuario.Nombre</td>
-                        <td>@usuario.Apellido</td>
+                    <tr data-id="@usuario.Id">
+                        <td class="col-username">@usuario.UserName</td>
+                        <td class="col-email">@usuario.Email</td>
+                        <td class="col-nombre">@usuario.Nombre</td>
+                        <td class="col-apellido">@usuario.Apellido</td>
                         <td>
                             <button class="xa57-btn-icon" onclick="editarUsuario('@usuario.Id')">
                                 <i class="material-icons">edit</i>
@@ -47,7 +46,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="usuarioModal" tabindex="-1">
+<div class="modal fade" id="usuarioModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="xa57-modal-content">
             <div class="xa57-modal-header">
@@ -212,7 +211,7 @@
 }
 
 .xa57-btn-close::before {
-    content: '\e5cd';
+    content: '\\e5cd';
     font-family: 'Material Icons';
     font-size: 20px;
 }
@@ -267,6 +266,22 @@
     margin-bottom: 6px;
     display: block;
 }
+.modal {
+    z-index: 1050 !important;
+    pointer-events: auto !important;
+}
+
+.modal-dialog {
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal-show {
+    display: block !important;
+}
 </style>
 
 <script>
@@ -277,7 +292,11 @@ function limpiarFormulario() {
 }
 
 async function editarUsuario(id) {
-    const response = await fetch(`/Admin/UsuarioDetalle?id=${id}`);
+    const response = await fetch(`/Admin/ObtenerUsuario?id=${id}`);
+    if (!response.ok) {
+        alert('Error al cargar el usuario');
+        return;
+    }
     const usuario = await response.json();
     
     document.getElementById('usuarioId').value = usuario.id;
@@ -293,8 +312,14 @@ async function editarUsuario(id) {
 
 async function eliminarUsuario(id) {
     if (confirm('¿Está seguro de eliminar este usuario?')) {
-        await fetch(`/Admin/EliminarUsuario?id=${id}`, { method: 'DELETE' });
-        location.reload();
+        const response = await fetch(`/Admin/EliminarUsuario?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            const fila = document.querySelector(`#usuariosTable tbody tr[data-id="${id}"]`);
+            if (fila) fila.remove();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Error al eliminar el usuario');
+        }
     }
 }
 
@@ -310,18 +335,93 @@ document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
     };
     
     const password = document.getElementById('usuarioPassword').value;
+    const rol = document.getElementById('usuarioRol').value;
     
+    let url;
+    let method;
+    let bodyData;
+
     if (id) {
-        await fetch(`/Admin/EditarUsuario?id=${id}`, { 
-            method: 'PUT', 
-            body: JSON.stringify(usuario) 
-        });
+        url = `/Admin/EditarUsuario?id=${id}`;
+        method = 'PUT';
+        bodyData = JSON.stringify(usuario);
     } else {
-        await fetch(`/Admin/CrearUsuario?password=${encodeURIComponent(password)}`, { 
-            method: 'POST', 
-            body: JSON.stringify(usuario) 
-        });
+        url = `/Admin/CrearUsuario`;
+        method = 'POST';
+        bodyData = JSON.stringify({ usuario: usuario, password: password, rol: rol });
     }
-    location.reload();
+    
+    const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyData
+    });
+    
+    if (response.ok) {
+        const modalElement = document.getElementById('usuarioModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+        
+        try {
+            if (!id) {
+                const nuevoUsuario = await response.json();
+                agregarFilaTabla(nuevoUsuario);
+                // Asignar el rol después de agregar el usuario si se especificó uno
+                if (rol && nuevoUsuario.id) {
+                    await fetch(`/Admin/AgregarRolUsuario?usuarioId=${nuevoUsuario.id}&rol=${encodeURIComponent(rol)}`, { method: 'POST' });
+                }
+            } else {
+                actualizarFilaTabla(usuario);
+            }
+        } catch (jsonError) {
+            alert(`Error al procesar la respuesta del servidor: ${jsonError.message}.`);
+        }
+    } else {
+        let errorMsg = 'Error al guardar el usuario';
+        try {
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                errorMsg = data.map(e => e.description).join('\n');
+            } else if (data.message) {
+                errorMsg = data.message;
+            }
+        } catch (jsonError) {
+            // Si la respuesta no es JSON, podría ser una página de error HTML
+            errorMsg = `Error del servidor: ${response.status} ${response.statusText}. Por favor, revise los logs del servidor para más detalles.`;
+        }
+        alert(errorMsg);
+    }
 });
+
+function agregarFilaTabla(u) {
+    const tbody = document.querySelector('#usuariosTable tbody');
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', u.id);
+    
+    tr.innerHTML = `
+        <td class="col-username">${u.userName}</td>
+        <td class="col-email">${u.email}</td>
+        <td class="col-nombre">${u.nombre || ''}</td>
+        <td class="col-apellido">${u.apellido || ''}</td>
+        <td>
+            <button class="xa57-btn-icon" onclick="editarUsuario('${u.id}')">
+                <i class="material-icons">edit</i>
+            </button>
+            <button class="xa57-btn-icon xa57-btn-icon--danger" onclick="eliminarUsuario('${u.id}')">
+                <i class="material-icons">delete</i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function actualizarFilaTabla(u) {
+    const fila = document.querySelector(`#usuariosTable tbody tr[data-id="${u.id}"]`);
+    if (!fila) return;
+    
+    fila.querySelector('.col-username').textContent = u.userName;
+    fila.querySelector('.col-email').textContent = u.email;
+    fila.querySelector('.col-nombre').textContent = u.nombre || '';
+    fila.querySelector('.col-apellido').textContent = u.apellido || '';
+}
 </script>

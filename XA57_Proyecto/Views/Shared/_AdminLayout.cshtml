@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin XA57</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background-color: var(--bg-1);
+            color: var(--tx-0);
+        }
+
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-2);
+            border-right: 1px solid var(--bd-1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--bd-1);
+        }
+
+        .sidebar-logo {
+            font-family: var(--ff-h);
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--tx-0);
+            text-decoration: none;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .menu-item {
+            margin-bottom: 4px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--tx-2);
+            text-decoration: none;
+            transition: var(--t);
+            font-family: var(--ff-b);
+            font-size: 0.9rem;
+            gap: 12px;
+        }
+
+        .menu-link:hover {
+            background: var(--bg-3);
+            color: var(--tx-0);
+        }
+
+        .menu-link.active {
+            background: var(--bg-4);
+            color: #fff;
+            border-left: 4px solid #fff;
+        }
+
+        .menu-link .material-icons {
+            font-size: 20px;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-logo">XA57 <span style="font-weight: 300;">ADMIN</span></a>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Index" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                        <i class="material-icons">dashboard</i> Dashboard
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Pedidos" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Pedidos" ? "active" : "")">
+                        <i class="material-icons">shopping_cart</i> Pedidos
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Productos" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Productos" ? "active" : "")">
+                        <i class="material-icons">inventory_2</i> Productos
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Lineas" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Lineas" ? "active" : "")">
+                        <i class="material-icons">directions_bus</i> Líneas
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Modelos" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Modelos" ? "active" : "")">
+                        <i class="material-icons">model_training</i> Modelos
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="TiposProducto" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "TiposProducto" ? "active" : "")">
+                        <i class="material-icons">category</i> Categorías
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-controller="Admin" asp-action="Usuarios" class="menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Usuarios" ? "active" : "")">
+                        <i class="material-icons">people</i> Usuarios
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="admin-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

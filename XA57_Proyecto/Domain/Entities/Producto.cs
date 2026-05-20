@@ -26,9 +26,17 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("tipo_producto_id")]
         public int? TipoProductoId { get; set; }
 
+        [Column("linea_id")]
+        public int? LineaId { get; set; }
+
+        [Column("tamano")]
+        public string? Tamano { get; set; }
+
         [Column("activo")]
         public bool Activo { get; set; } = true;
 
         public TipoProducto? TipoProducto { get; set; }
+
+        public Linea? Linea { get; set; }
     }
 }
