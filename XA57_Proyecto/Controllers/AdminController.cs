@@ -414,6 +414,9 @@ namespace XA57_Proyecto.Controllers
                     return BadRequest(new { message = "Datos de usuario inválidos." });
                 }
 
+                // Asignar un nuevo ID único al crear el usuario para evitar conflictos de llave primaria.
+                dto.Usuario.Id = Guid.NewGuid().ToString();
+
                 var resultado = await _usuarioAdminService.CrearUsuarioAsync(dto.Usuario, dto.Password);
                 if (!resultado.Succeeded)
                 {
