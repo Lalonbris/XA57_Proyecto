@@ -18,20 +18,37 @@ namespace XA57_Proyecto.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var productosRecientes = await _productoService.ObtenerTodosAsync();
-            return View(productosRecientes.OrderByDescending(p => p.Id).Take(4).ToList());
+            try
+            {
+                var productosRecientes = await _productoService.ObtenerTodosAsync();
+                return View(productosRecientes.OrderByDescending(p => p.Id).Take(4).ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener productos para la página de inicio.");
+                // Retornar vista con lista vacía para que la página cargue aunque la BD no responda
+                return View(new List<Domain.Entities.Producto>());
+            }
         }
 
         public async Task<IActionResult> CatalogoPorTipo(int tipo)
         {
-            List<Domain.Entities.Producto> resultado;
-            if (tipo <= 0)
+            try
             {
-                resultado = await _productoService.ObtenerTodosAsync();
+                List<Domain.Entities.Producto> resultado;
+                if (tipo <= 0)
+                {
+                    resultado = await _productoService.ObtenerTodosAsync();
+                    return View("Catalogo", resultado);
+                }
+                resultado = await _productoService.ObtenerPorTipoAsync(tipo);
                 return View("Catalogo", resultado);
             }
-            resultado = await _productoService.ObtenerPorTipoAsync(tipo);
-            return View("Catalogo", resultado);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener catálogo por tipo.");
+                return View("Catalogo", new List<Domain.Entities.Producto>());
+            }
         }
 
         public IActionResult Privacy()
@@ -41,8 +58,16 @@ namespace XA57_Proyecto.Controllers
 
         public async Task<IActionResult> Catalogo()
         {
-            var productos = await _productoService.ObtenerTodosAsync();
-            return View(productos);
+            try
+            {
+                var productos = await _productoService.ObtenerTodosAsync();
+                return View(productos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener catálogo.");
+                return View(new List<Domain.Entities.Producto>());
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

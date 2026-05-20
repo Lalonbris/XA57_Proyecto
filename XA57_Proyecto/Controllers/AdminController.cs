@@ -320,6 +320,14 @@ namespace XA57_Proyecto.Controllers
             return Ok(pedido);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DetallePedido(int id)
+        {
+            var pedido = await _pedidoService.ObtenerPorIdAsync(id);
+            if (pedido == null) return NotFound();
+            return View(pedido);
+        }
+
         [HttpPut]
         public async Task<IActionResult> ActualizarEstadoPedido(int id, [FromBody] string nuevoEstado)
         {
@@ -424,7 +432,7 @@ namespace XA57_Proyecto.Controllers
                     return BadRequest(resultado.Errors);
                 }
 
-                var usuarioCreado = await _usuarioAdminService.ObtenerPorEmailAsync(dto.Usuario.Email);
+                var usuarioCreado = await _usuarioAdminService.ObtenerPorEmailAsync(dto.Usuario.Email!);
                 if(usuarioCreado == null)
                 {
                     // Manejar el caso improbable de que el usuario no se encuentre después de crearlo.

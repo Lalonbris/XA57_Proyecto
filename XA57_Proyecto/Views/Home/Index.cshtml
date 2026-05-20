@@ -116,7 +116,7 @@
                 <div class="col-6 col-lg-3">
                     <a asp-controller="Productos" asp-action="Detalle" asp-route-id="@producto.Id" class="xa57-product-thumb__link">
                         <div class="xa57-product-thumb__img">
-                            <img src="@producto.ImagenUrl" alt="@producto.Nombre" onerror="this.src='/images/placeholder.png'" />
+                            <img src="@producto.ImagenUrl" alt="@producto.Nombre" loading="lazy" onerror="this.src='/images/placeholder.png'" />
                         </div>
                         <p class="xa57-product-thumb__name">@producto.Nombre</p>
                         <p class="xa57-product-thumb__desc">@producto.Descripcion</p>

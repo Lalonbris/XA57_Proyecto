@@ -1,0 +1,274 @@
+@model XA57_Proyecto.Domain.Entities.Pedido
+@{
+    ViewData["Title"] = $"Pedido #{Model.Id}";
+    Layout = "_AdminLayout";
+
+    string? estadoSiguiente = Model.Estado switch
+    {
+        "Recibido" => "En producción",
+        "En producción" => "Enviado",
+        "Enviado" => "Entregado",
+        _ => null
+    };
+
+    string GetEstadoBadge(string estado) => estado switch
+    {
+        "Recibido" => "xa57-badge--received",
+        "En producción" => "xa57-badge--processing",
+        "Enviado" => "xa57-badge--completed",
+        "Entregado" => "xa57-badge--success",
+        _ => "xa57-badge--default"
+    };
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="background: transparent; padding: 0;">
+            <li class="breadcrumb-item"><a asp-action="Index" style="color: var(--tx-2);">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Pedidos" style="color: var(--tx-2);">Pedidos</a></li>
+            <li class="breadcrumb-item active" style="color: var(--tx-0);">Pedido #@Model.Id</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="xa57-title" style="margin-bottom: 4px;">Pedido #@Model.Id</h1>
+            <p style="color: var(--tx-2); font-family: var(--ff-b); font-size: 0.85rem; margin: 0;">
+                @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="xa57-badge @GetEstadoBadge(Model.Estado)" style="font-size: 0.85rem; padding: 6px 14px;">
+                @Model.Estado
+            </span>
+            @if (estadoSiguiente != null)
+            {
+                <button class="btn btn-xa57-primary" onclick="cambiarEstado('@estadoSiguiente')" id="btnCambiarEstado">
+                    @(Model.Estado == "Recibido" ? "Enviar a Manufactura" : "Avanzar a " + estadoSiguiente)
+                </button>
+            }
+            <a asp-action="ListaPicking" asp-route-id="@Model.Id" target="_blank" class="btn btn-xa57-secondary">
+                <i class="material-icons" style="font-size: 18px;">print</i> Lista de Picking
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="xa57-detail-card">
+                <h3 class="xa57-detail-card__title">Producto</h3>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Nombre</span>
+                    <span class="xa57-detail-value">@(Model.Producto?.Nombre ?? "N/A")</span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Tipo de Producto</span>
+                    <span class="xa57-detail-value">@(Model.Producto?.TipoProducto?.Nombre ?? "N/A")</span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Cantidad</span>
+                    <span class="xa57-detail-value">@Model.Cantidad unidades</span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Precio Unitario</span>
+                    <span class="xa57-detail-value">$@Model.Producto?.Precio.ToString("N2")</span>
+                </div>
+                <div class="xa57-detail-item" style="border-bottom: none;">
+                    <span class="xa57-detail-label">Subtotal</span>
+                    <span class="xa57-detail-value" style="font-weight: 700; font-size: 1.1rem; color: #fff;">
+                        $@((Model.Cantidad * (Model.Producto?.Precio ?? 0)).ToString("N2"))
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="xa57-detail-card">
+                <h3 class="xa57-detail-card__title">Personalización</h3>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Modelo de Autobús</span>
+                    <span class="xa57-detail-value">
+                        @(Model.ModeloAutobus?.Nombre ?? "N/A")
+                        @if (!string.IsNullOrEmpty(Model.ModeloAutobus?.Fabricante))
+                        {
+                            <small style="color: var(--tx-3);">(@Model.ModeloAutobus.Fabricante)</small>
+                        }
+                    </span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Línea / Cromática</span>
+                    <span class="xa57-detail-value">
+                        @(Model.Linea?.Nombre ?? "N/A")
+                        @if (!string.IsNullOrEmpty(Model.Linea?.ColorPrimario))
+                        {
+                            <span class="color-swatch" style="background: @Model.Linea.ColorPrimario;"></span>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Linea?.ColorSecundario))
+                        {
+                            <span class="color-swatch" style="background: @Model.Linea.ColorSecundario;"></span>
+                        }
+                    </span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Color Seleccionado</span>
+                    <span class="xa57-detail-value">
+                        @if (!string.IsNullOrEmpty(Model.ColorHex))
+                        {
+                            <span class="color-swatch" style="background: @Model.ColorHex;"></span>
+                        }
+                        @(Model.Color ?? "N/A") (@(Model.ColorHex ?? "N/A"))
+                    </span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Nombre del Operador</span>
+                    <span class="xa57-detail-value">@(Model.NombreOperador ?? "N/A")</span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Número Económico</span>
+                    <span class="xa57-detail-value">@(Model.NumeroEconomico ?? "N/A")</span>
+                </div>
+                <div class="xa57-detail-item">
+                    <span class="xa57-detail-label">Ruta / Destino</span>
+                    <span class="xa57-detail-value">@(Model.Ruta ?? "N/A")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.NotasEspeciales))
+    {
+        <div class="xa57-detail-card mt-3">
+            <h3 class="xa57-detail-card__title">Notas Especiales</h3>
+            <div style="background: var(--bg-3); border: 1px solid var(--bd-1); padding: 16px; border-radius: var(--r-m); color: var(--tx-1); font-family: var(--ff-b); font-size: 0.9rem; white-space: pre-wrap;">
+                @Model.NotasEspeciales
+            </div>
+        </div>
+    }
+
+    @if (estadoSiguiente != null)
+    {
+        <div class="xa57-detail-card mt-3">
+            <h3 class="xa57-detail-card__title">Cambiar Estado</h3>
+            <div class="d-flex align-items-center gap-3" style="flex-wrap: wrap;">
+                <span style="color: var(--tx-2); font-family: var(--ff-b); font-size: 0.85rem;">
+                    Estado actual: <strong style="color: var(--tx-0);">@Model.Estado</strong>
+                </span>
+                <span style="color: var(--tx-3);">→</span>
+                <span style="color: var(--tx-2); font-family: var(--ff-b); font-size: 0.85rem;">
+                    Siguiente: <strong style="color: var(--tx-0);">@estadoSiguiente</strong>
+                </span>
+                <button class="btn btn-xa57-primary" onclick="cambiarEstado('@estadoSiguiente')">
+                    Confirmar cambio a @estadoSiguiente
+                </button>
+            </div>
+            <div id="estadoError" style="color: #f87171; margin-top: 10px; font-family: var(--ff-b); font-size: 0.85rem; display: none;"></div>
+            <div id="estadoSuccess" style="color: #22c55e; margin-top: 10px; font-family: var(--ff-b); font-size: 0.85rem; display: none;"></div>
+        </div>
+    }
+</div>
+
+<style>
+    .xa57-detail-card {
+        background: var(--bg-2);
+        border: 1px solid var(--bd-1);
+        border-radius: var(--r-xl);
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .xa57-detail-card__title {
+        font-family: var(--ff-h);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--tx-0);
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--bd-0);
+    }
+
+    .xa57-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--bd-0);
+    }
+
+    .xa57-detail-label {
+        font-family: var(--ff-b);
+        font-size: 0.8rem;
+        color: var(--tx-3);
+        font-weight: 500;
+    }
+
+    .xa57-detail-value {
+        font-family: var(--ff-b);
+        font-size: 0.9rem;
+        color: var(--tx-1);
+        font-weight: 500;
+        text-align: right;
+        max-width: 60%;
+    }
+
+    .color-swatch {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--bd-2);
+        border-radius: 3px;
+        vertical-align: middle;
+        margin-left: 4px;
+    }
+
+    .xa57-badge--received { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .xa57-badge--processing { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+    .xa57-badge--completed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .xa57-badge--success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .xa57-badge--default { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: var(--tx-3);
+        content: "/";
+    }
+</style>
+
+<script>
+async function cambiarEstado(nuevoEstado) {
+    const btn = document.getElementById('btnCambiarEstado');
+    const errorDiv = document.getElementById('estadoError');
+    const successDiv = document.getElementById('estadoSuccess');
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Procesando...';
+    }
+
+    try {
+        const response = await fetch(`/Admin/ActualizarEstadoPedido?id=@Model.Id`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoEstado)
+        });
+
+        if (response.ok) {
+            successDiv.textContent = `Estado actualizado exitosamente a "${nuevoEstado}".`;
+            successDiv.style.display = 'block';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            const data = await response.json();
+            errorDiv.textContent = data.message || 'Error al actualizar el estado.';
+            errorDiv.style.display = 'block';
+        }
+    } catch (err) {
+        errorDiv.textContent = 'Error de conexión al actualizar el estado.';
+        errorDiv.style.display = 'block';
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '@(Model.Estado == "Recibido" ? "Enviar a Manufactura" : "Avanzar a " + estadoSiguiente)';
+        }
+    }
+}
+</script>

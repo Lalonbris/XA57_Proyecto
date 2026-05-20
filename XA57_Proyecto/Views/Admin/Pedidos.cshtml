@@ -2,16 +2,6 @@
 @{
     ViewData["Title"] = "Administrar Pedidos";
     Layout = "_AdminLayout";
-    
-    string GetEstadoColor(string estado) {
-        return estado switch {
-            "Recibido" => "xa57-badge--received",
-            "En producción" => "xa57-badge--processing",
-            "Enviado" => "xa57-badge--completed",
-            "Entregado" => "xa57-badge--success",
-            _ => "xa57-badge--default"
-        };
-    }
 }
 
 <div class="container mt-4">
@@ -45,7 +35,7 @@
                 @foreach (var pedido in Model)
                 {
                     <tr data-id="@pedido.Id">
-                        <td>#@pedido.Id</td>
+                        <td><a asp-action="DetallePedido" asp-route-id="@pedido.Id" style="color: var(--tx-0); text-decoration: none; font-weight: 600;">#@pedido.Id</a></td>
                         <td>@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@pedido.Producto?.Nombre</td>
                         <td>@pedido.Cantidad</td>

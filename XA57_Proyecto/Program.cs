@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using XA57_Proyecto.Application.Interfaces;
 using XA57_Proyecto.Application.Services;
 using XA57_Proyecto.Domain.Entities;
@@ -7,87 +8,105 @@ using XA57_Proyecto.Infrastructure.Data;
 using XA57_Proyecto.Infrastructure.Repositories;
 using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+        .Build())
+    .CreateLogger();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+try
+{
+    Log.Information("Starting XA57 web application");
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>();
+    var builder = WebApplication.CreateBuilder(args);
 
-// Infrastructure
-builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
-builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
-builder.Services.AddScoped<ILineaRepository, LineaRepository>();
-builder.Services.AddScoped<IModeloAutobusRepository, ModeloAutobusRepository>();
-builder.Services.AddScoped<ITipoProductoRepository, TipoProductoRepository>();
+    builder.Host.UseSerilog();
 
-// Application
-builder.Services.AddScoped<IProductoService, ProductoService>();
-builder.Services.AddScoped<IPedidoService, PedidoService>();
-builder.Services.AddScoped<ILineaService, LineaService>();
-builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
-builder.Services.AddScoped<ITipoProductoService, TipoProductoService>();
-builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllersWithViews()
-    .AddJsonOptions(options =>
+    builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<AppDbContext>();
+
+    builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+    builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+    builder.Services.AddScoped<ILineaRepository, LineaRepository>();
+    builder.Services.AddScoped<IModeloAutobusRepository, ModeloAutobusRepository>();
+    builder.Services.AddScoped<ITipoProductoRepository, TipoProductoRepository>();
+
+    builder.Services.AddScoped<IProductoService, ProductoService>();
+    builder.Services.AddScoped<IPedidoService, PedidoService>();
+    builder.Services.AddScoped<ILineaService, LineaService>();
+    builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
+    builder.Services.AddScoped<ITipoProductoService, TipoProductoService>();
+    builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
+
+    builder.Services.AddControllersWithViews()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
+
+    builder.Services.AddCors(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.AddPolicy("AllowReactApp",
+            policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
     });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy =>
+    var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
         {
-            policy.WithOrigins("http://localhost:3000")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
-
-var app = builder.Build();
-
-// Seed the database with roles and admin user
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        await IdentityDataInitializer.SeedData(userManager, roleManager);
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            await IdentityDataInitializer.SeedData(userManager, roleManager);
+            await CatalogDataInitializer.SeedData(services.GetRequiredService<AppDbContext>());
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while seeding the database.");
+        }
     }
-    catch (Exception ex)
+
+    if (!app.Environment.IsDevelopment())
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts();
     }
-}
 
-if (!app.Environment.IsDevelopment())
+    app.UseSerilogRequestLogging();
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseCors("AllowReactApp");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+    app.MapRazorPages();
+
+    app.Run();
+}
+catch (Exception ex)
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseCors("AllowReactApp");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
-
-app.Run();
-
+finally
+{
+    Log.CloseAndFlush();
+}
