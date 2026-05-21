@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useConfiguradorData } from "./hooks/useConfiguradorData";
-import { validarConfiguracion } from "./utils/validaciones";
-import ModeloSelector from "./components/ModeloSelector";
-import LineaSelector from "./components/LineaSelector";
-import PersonalizacionForm from "./components/PersonalizacionForm";
-import VistaPrevia from "./components/VistaPrevia";
-import CantidadControl from "./components/CantidadControl";
+import { useState, useRef } from "react";
+
+const colores = [
+    { nombre: "ADO Red",       hex: "#E8322A" },
+    { nombre: "ETN Gold",     hex: "#b8860b" },
+    { nombre: "Primera Plus", hex: "#F0C200" },
+    { nombre: "Futura",       hex: "#a855f7" },
+];
 
 /* ── Design tokens ── */
 const t = {
@@ -29,115 +29,97 @@ const t = {
 };
 
 export default function Configurador(props) {
-    const { productoId } = props;
+    const { 
+        productoId, 
+        productoImagen, 
+        productoNombre = "Configurador XA57",
+        permiteNumeroEconomico = "true",
+        maxCaracteres = 20
+    } = props;
 
-    // Fetch data from API
-    const { modelos, lineas, producto, loading, error } = useConfiguradorData(productoId);
+    const [colorHex,        setColorHex]        = useState("#F0C200");
+    const [colorNombre,     setColorNombre]      = useState("Primera Plus");
+    const [numeroSerie,     setNumeroSerie]      = useState("");
+    const [notasEspeciales, setNotasEspeciales]  = useState("");
+    const [habilitado,      setHabilitado]       = useState(true);
+    const [cantidad,        setCantidad]         = useState(1);
+    
+    // Dragging state
+    const [textPos,         setTextPos]          = useState({ x: 50, y: 75 });
+    const [imagePos,        setImagePos]         = useState({ x: 30, y: 40 });
+    const [uploadedImage,   setUploadedImage]    = useState(null);
+    const [dragItem,        setDragItem]         = useState(null); // 'text' | 'image'
+    const [dragOffset,      setDragOffset]       = useState({ x: 0, y: 0 });
+    const [btnHover,        setBtnHover]         = useState(false);
+    
+    const previewRef = useRef(null);
 
-    // Form state
-    const [config, setConfig] = useState({
-        modeloAutobusId: null,
-        lineaId: null,
-        lineaSeleccionada: null,
-        nombreOperador: "",
-        numeroEconomico: "",
-        ruta: "",
-        notasEspeciales: "",
-        cantidad: 1
-    });
-
-    const [errores, setErrores] = useState({});
-    const [btnHover, setBtnHover] = useState(false);
-    const [enviando, setEnviando] = useState(false);
-
-    const handleUpdate = (field, value) => {
-        setConfig(prev => ({ ...prev, [field]: value }));
-        // Limpiar error del campo al escribir
-        if (errores[field]) {
-            setErrores(prev => {
-                const newErr = { ...prev };
-                delete newErr[field];
-                return newErr;
-            });
-        }
+    const seleccionarColor = (color) => {
+        setColorHex(color.hex);
+        setColorNombre(color.nombre);
     };
 
-    const handleLineaSelect = (linea) => {
-        setConfig(prev => ({ 
-            ...prev, 
-            lineaId: linea.id, 
-            lineaSeleccionada: linea 
-        }));
-        if (errores.linea) {
-            setErrores(prev => {
-                const newErr = { ...prev };
-                delete newErr.linea;
-                return newErr;
-            });
+    const handleColorLibre = (hex) => {
+        setColorHex(hex);
+        setColorNombre(`Custom: ${hex.toUpperCase()}`);
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setUploadedImage(URL.createObjectURL(file));
         }
     };
 
     const handleAgregarCarrito = async () => {
-        const errs = validarConfiguracion(config, producto?.tipoProducto);
-        if (Object.keys(errs).length > 0) {
-            setErrores(errs);
-            mostrarToast("Por favor corrija los errores antes de continuar.", true);
-            return;
-        }
-
-        setEnviando(true);
-        try {
-            const payload = {
-                productoId: parseInt(productoId),
-                modeloAutobusId: config.modeloAutobusId,
-                lineaId: config.lineaId,
-                color: config.lineaSeleccionada?.nombre,
-                colorHex: config.lineaSeleccionada?.colorPrimario,
-                nombreOperador: config.nombreOperador || null,
-                numeroEconomico: config.numeroEconomico || null,
-                ruta: config.ruta || null,
-                notasEspeciales: config.notasEspeciales || null,
-                cantidad: config.cantidad
-            };
-
-            const response = await fetch("/Carrito/Agregar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            if (response.ok) {
-                mostrarToast("Producto agregado al carrito.");
-                if (window.actualizarIconoCarrito) {
-                    window.actualizarIconoCarrito();
-                }
-            } else {
-                const data = await response.json();
-                throw new Error(data.message || 'Error al agregar al carrito');
+        const datos = { productoId, color: colorNombre, colorHex, numeroSerie, notasEspeciales, cantidad };
+        const response = await fetch("/Carrito/Agregar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datos),
+        });
+        if (response.ok) {
+            mostrarToast("Producto agregado al carrito.");
+            if (window.actualizarIconoCarrito) {
+                window.actualizarIconoCarrito();
             }
-        } catch (err) {
-            mostrarToast(err.message, true);
-        } finally {
-            setEnviando(false);
         }
     };
 
-    if (loading) return (
-        <div style={{ padding: 40, textAlign: "center", width: "100%", color: t.tx2 }}>
-            <span className="material-icons animate-spin" style={{ fontSize: 40, marginBottom: 10 }}>refresh</span>
-            <p>Cargando configurador...</p>
-        </div>
-    );
+    /* ── Drag handlers ── */
+    const startDrag = (e, item) => {
+        e.preventDefault();
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+        
+        setDragItem(item);
+        const rect = previewRef.current.getBoundingClientRect();
+        const pos = item === 'text' ? textPos : imagePos;
+        
+        setDragOffset({
+            x: clientX - rect.left - (pos.x / 100) * rect.width,
+            y: clientY - rect.top  - (pos.y / 100) * rect.height,
+        });
+    };
 
-    if (error) return (
-        <div style={{ padding: 40, textAlign: "center", width: "100%", color: "#ef4444" }}>
-            <span className="material-icons" style={{ fontSize: 40, marginBottom: 10 }}>error</span>
-            <p>{error}</p>
-            <button onClick={() => window.location.reload()} style={{ marginTop: 15, padding: "8px 16px", borderRadius: 8, background: t.bg3, color: t.tx0, border: `1px solid ${t.bd2}` }}>
-                Reintentar
-            </button>
-        </div>
-    );
+    const onMove = (e) => {
+        if (!dragItem) return;
+        const clientX = (e.clientX !== undefined) ? e.clientX : e.touches[0].clientX;
+        const clientY = (e.clientY !== undefined) ? e.clientY : e.touches[0].clientY;
+        
+        const rect = previewRef.current.getBoundingClientRect();
+        const newPos = {
+            x: Math.min(Math.max(((clientX - rect.left - dragOffset.x) / rect.width)  * 100, 0), 95),
+            y: Math.min(Math.max(((clientY - rect.top  - dragOffset.y) / rect.height) * 100, 0), 95),
+        };
+        
+        if (dragItem === 'text') setTextPos(newPos);
+        else if (dragItem === 'image') setImagePos(newPos);
+    };
+
+    const stopDrag = () => setDragItem(null);
+
+    const permits = (val) => val === "true" || val === true;
 
     return (
         <div style={{ 
@@ -146,101 +128,182 @@ export default function Configurador(props) {
         }}>
 
             {/* ── COLUMNA IZQUIERDA: Preview ── */}
-            <VistaPrevia 
-                producto={producto} 
-                lineaSeleccionada={config.lineaSeleccionada} 
-                valores={config} 
-                t={t} 
-            />
+            <div>
+                <div
+                    ref={previewRef}
+                    onMouseMove={onMove}
+                    onMouseUp={stopDrag}
+                    onMouseLeave={stopDrag}
+                    onTouchMove={onMove}
+                    onTouchEnd={stopDrag}
+                    style={{
+                        marginBottom: 12, position: "relative", borderRadius: 16, overflow: "hidden",
+                        background: "#f4f4f4", userSelect: "none", border: `1px solid ${t.bd2}`, aspectRatio: "1 / 1"
+                    }}
+                >
+                    <img
+                        src={productoImagen}
+                        alt="Producto"
+                        style={{ width: "100%", height: "100%", display: "block", objectFit: "contain", pointerEvents: "none" }}
+                    />
+
+                    <div style={{
+                        position: "absolute", inset: 0, backgroundColor: colorHex, mixBlendMode: "hue",
+                        opacity: 0.85, transition: "background-color 0.3s", pointerEvents: "none",
+                    }} />
+
+                    {/* Logo subido arrastrable */}
+                    {uploadedImage && (
+                        <div
+                            onMouseDown={(e) => startDrag(e, 'image')}
+                            onTouchStart={(e) => startDrag(e, 'image')}
+                            style={{
+                                position: "absolute", left: `${imagePos.x}%`, top: `${imagePos.y}%`,
+                                transform: "translate(-50%, -50%)", cursor: dragItem === 'image' ? "grabbing" : "grab",
+                                width: "60px", height: "60px"
+                            }}
+                        >
+                            <img src={uploadedImage} alt="Custom Logo" style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }} />
+                        </div>
+                    )}
+
+                    {/* Numero arrastrable */}
+                    {numeroSerie && permits(permiteNumeroEconomico) && (
+                        <div
+                            onMouseDown={(e) => startDrag(e, 'text')}
+                            onTouchStart={(e) => startDrag(e, 'text')}
+                            style={{
+                                position: "absolute", left: `${textPos.x}%`, top: `${textPos.y}%`,
+                                transform: "translate(-50%, -50%)", cursor: dragItem === 'text' ? "grabbing" : "grab",
+                                padding: "4px 10px", background: "rgba(0,0,0,0.65)", color: "#fff",
+                                fontWeight: 700, fontFamily: t.ffH, fontSize: 17, borderRadius: 5, letterSpacing: 2,
+                                boxShadow: "0 2px 10px rgba(0,0,0,0.5)", border: "1px dashed rgba(255,255,255,0.35)", whiteSpace: "nowrap",
+                            }}
+                        >
+                            {numeroSerie}
+                        </div>
+                    )}
+                </div>
+                {(numeroSerie || uploadedImage) && (
+                    <p style={{ textAlign: "center", fontSize: 11, color: t.tx3 }}>
+                        Arrastra los elementos sobre el preview para acomodarlos
+                    </p>
+                )}
+            </div>
 
             {/* ── COLUMNA DERECHA: Controles ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ marginBottom: 10 }}>
-                    <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: t.ffH, color: t.tx0, margin: 0 }}>
-                        {producto?.nombre}
-                    </h2>
-                    <p style={{ fontSize: 18, color: t.sv1, marginTop: 4, fontWeight: 600 }}>
-                        ${producto?.precio?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </p>
+                    <h2 style={{ fontSize: 24, fontWeight: 700, fontFamily: t.ffH, color: t.tx0, margin: 0 }}>{productoNombre}</h2>
+                    <p style={{ fontSize: 14, color: t.tx2, marginTop: 4 }}>{colorNombre}</p>
                 </div>
 
-                <ModeloSelector 
-                    modelos={modelos} 
-                    selectedId={config.modeloAutobusId} 
-                    onSelect={(id) => handleUpdate('modeloAutobusId', id)} 
-                    error={errores.modelo}
-                    t={t} 
-                />
-
-                <LineaSelector 
-                    lineas={lineas} 
-                    selectedLinea={config.lineaSeleccionada} 
-                    onSelect={handleLineaSelect} 
-                    error={errores.linea}
-                    t={t} 
-                />
-
-                <div style={{ padding: "15px 0", borderTop: `1px solid ${t.bd1}`, borderBottom: `1px solid ${t.bd1}` }}>
-                    <p style={{ fontWeight: 600, fontSize: 14, fontFamily: t.ffH, color: t.tx0, marginBottom: 15 }}>
-                        Personalización del Producto
-                    </p>
-                    <PersonalizacionForm 
-                        tipoProducto={producto?.tipoProducto} 
-                        valores={config} 
-                        onChange={handleUpdate} 
-                        errores={errores}
-                        t={t} 
-                    />
+                {/* TOGGLE */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 15, borderBottom: `1px solid ${t.bd1}` }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <span style={{ fontWeight: 600, fontSize: 14, fontFamily: t.ffH, color: t.tx0 }}>Personalize Your Item</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", color: t.tx3 }}>Studio</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div onClick={() => setHabilitado(!habilitado)} style={{
+                            width: 42, height: 22, borderRadius: 11, cursor: "pointer",
+                            background: habilitado ? t.sv1 : t.bg5, position: "relative",
+                            transition: "background 0.2s", border: `1px solid ${habilitado ? t.sv1 : t.bd2}`,
+                        }}>
+                            <div style={{
+                                width: 16, height: 16, borderRadius: "50%", background: habilitado ? t.bg0 : t.tx3,
+                                position: "absolute", top: 2, left: habilitado ? 22 : 2, transition: "left 0.2s"
+                            }} />
+                        </div>
+                    </div>
                 </div>
+
+                {habilitado && (
+                    <>
+                        {/* Cargar Imagen */}
+                        <div>
+                            <p style={{ fontWeight: 600, fontSize: 12, marginBottom: 10, color: t.tx1, fontFamily: t.ffH }}>Subir Logotipo / Imagen</p>
+                            <label style={{
+                                display: "block", width: "100%", padding: "12px", background: t.bg3, border: `1px dashed ${t.bd2}`,
+                                borderRadius: 8, cursor: "pointer", textAlign: "center", color: t.tx2, fontSize: 12
+                            }}>
+                                <span className="material-icons" style={{ verticalAlign: "middle", marginRight: 8, fontSize: 18 }}>cloud_upload</span>
+                                {uploadedImage ? "Cambiar Imagen" : "Seleccionar archivo"}
+                                <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: "none" }} />
+                            </label>
+                        </div>
+
+                        {/* Colores */}
+                        <div>
+                            <p style={{ fontWeight: 600, fontSize: 12, marginBottom: 10, color: t.tx1, fontFamily: t.ffH }}>Esquema de Color</p>
+                            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                                {colores.map((color) => (
+                                    <div key={color.nombre} onClick={() => seleccionarColor(color)} style={{
+                                        cursor: "pointer", border: colorNombre === color.nombre ? `2px solid ${t.sv1}` : "2px solid transparent",
+                                        borderRadius: 10, padding: 3
+                                    }}>
+                                        <div style={{ width: 60, height: 32, borderRadius: 7, background: color.hex }} />
+                                    </div>
+                                ))}
+                                <div style={{ position: "relative", width: 60, height: 32 }}>
+                                    <div style={{ width: 60, height: 32, borderRadius: 7, background: "linear-gradient(135deg, #ff0000, #ffff00, #0000ff)" }} />
+                                    <input type="color" value={colorHex} onChange={(e) => handleColorLibre(e.target.value)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer" }} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Numero Serie */}
+                        {permits(permiteNumeroEconomico) && (
+                            <div>
+                                <label style={{ fontWeight: 600, fontSize: 12, display: "block", marginBottom: 7, color: t.tx1, fontFamily: t.ffH }}>Numero de Unidad</label>
+                                <div style={{ position: "relative" }}>
+                                    <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: t.tx3, fontSize: 13 }}>#</span>
+                                    <input type="text" placeholder="ej. 9582" maxLength={maxCaracteres} value={numeroSerie} onChange={(e) => setNumeroSerie(e.target.value)}
+                                        style={{ width: "100%", padding: "9px 12px 9px 26px", border: `1px solid ${t.bd2}`, borderRadius: 8, fontSize: 13, color: t.tx0, background: t.bg3, outline: "none" }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label style={{ fontWeight: 600, fontSize: 12, display: "block", marginBottom: 7, color: t.tx1, fontFamily: t.ffH }}>Solicitudes Especiales</label>
+                            <textarea placeholder="Notas adicionales..." value={notasEspeciales} onChange={(e) => setNotasEspeciales(e.target.value)} rows={2}
+                                style={{ width: "100%", padding: "9px 12px", border: `1px solid ${t.bd2}`, borderRadius: 8, fontSize: 13, resize: "none", color: t.tx0, background: t.bg3, outline: "none" }}
+                            />
+                        </div>
+                    </>
+                )}
 
                 {/* CANTIDAD + CARRITO */}
                 <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                    <CantidadControl 
-                        cantidad={config.cantidad} 
-                        onChange={(val) => handleUpdate('cantidad', val)} 
-                        t={t} 
-                    />
+                    <div style={{ display: "flex", alignItems: "center", border: `1px solid ${t.bd2}`, borderRadius: 8, background: t.bg3 }}>
+                        <button onClick={() => setCantidad(c => Math.max(1, c - 1))} style={{ width: 38, height: 44, background: "none", border: "none", color: t.tx2, cursor: "pointer" }}>&minus;</button>
+                        <span style={{ width: 30, textAlign: "center", fontSize: 14, fontWeight: 600, color: t.tx0 }}>{cantidad}</span>
+                        <button onClick={() => setCantidad(c => c + 1)} style={{ width: 38, height: 44, background: "none", border: "none", color: t.tx2, cursor: "pointer" }}>+</button>
+                    </div>
                     <button
                         onClick={handleAgregarCarrito}
-                        disabled={enviando}
                         onMouseEnter={() => setBtnHover(true)}
                         onMouseLeave={() => setBtnHover(false)}
                         style={{
-                            flex: 1, padding: "13px", 
-                            background: enviando ? t.bg4 : (btnHover ? t.sv1 : t.white), 
-                            color: t.bg0, border: "none", borderRadius: 10,
-                            fontSize: 14, fontWeight: 600, cursor: enviando ? "not-allowed" : "pointer", 
-                            transition: "all 0.2s", 
-                            boxShadow: btnHover && !enviando ? "0 4px 15px rgba(0,0,0,0.4)" : "none"
+                            flex: 1, padding: "13px", background: btnHover ? t.sv1 : t.white, color: t.bg0, border: "none", borderRadius: 10,
+                            fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", boxShadow: btnHover ? "0 4px 15px rgba(0,0,0,0.4)" : "none"
                         }}
                     >
-                        {enviando ? "Agregando..." : "Agregar al carrito"}
+                        Agregar al carrito
                     </button>
                 </div>
             </div>
-            
-            <style>{`
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-                .animate-spin {
-                    animation: spin 1s linear infinite;
-                    display: inline-block;
-                }
-            `}</style>
         </div>
     );
 }
 
 /* ── Toast notification ── */
-function mostrarToast(texto, esError = false) {
+function mostrarToast(texto) {
     const el = document.createElement("div");
     el.textContent = texto;
     Object.assign(el.style, {
-        position: "fixed", bottom: "28px", right: "28px", 
-        background: esError ? "#ef4444" : "#fff", 
-        color: esError ? "#fff" : "#080808",
+        position: "fixed", bottom: "28px", right: "28px", background: "#fff", color: "#080808",
         padding: "13px 20px", borderRadius: "10px", fontFamily: "Inter, sans-serif", fontSize: "13px",
         fontWeight: "600", boxShadow: "0 8px 32px rgba(0,0,0,0.45)", zIndex: "9999", opacity: "0",
         transition: "opacity 0.2s ease, transform 0.2s ease", transform: "translateY(8px)",
@@ -250,5 +313,5 @@ function mostrarToast(texto, esError = false) {
     setTimeout(() => {
         el.style.opacity = "0"; el.style.transform = "translateY(8px)";
         setTimeout(() => el.remove(), 220);
-    }, 3500);
+    }, 2600);
 }
