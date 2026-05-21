@@ -93,6 +93,15 @@
         }
 
         document.getElementById("modal-btn-carrito").addEventListener("click", async () => {
+            const isUserAuthenticated = document.body.dataset.userAuthenticated === 'true';
+
+            if (!isUserAuthenticated) {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                cerrarModal();
+                return;
+            }
+
             const response = await fetch("/Carrito/Agregar", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

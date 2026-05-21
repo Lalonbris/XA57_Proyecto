@@ -7,6 +7,7 @@ using XA57_Proyecto.Domain.Entities;
 using XA57_Proyecto.Infrastructure.Data;
 using XA57_Proyecto.Infrastructure.Repositories;
 using XA57_Proyecto.Infrastructure.Repositories.Interfaces;
+using QuestPDF.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
@@ -20,6 +21,8 @@ try
 {
     Log.Information("Starting XA57 web application");
 
+    QuestPDF.Settings.License = LicenseType.Community;
+
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog();
@@ -27,6 +30,7 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+    builder.Services.AddAuthentication();
     builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>();
@@ -43,6 +47,8 @@ try
     builder.Services.AddScoped<IModeloAutobusService, ModeloAutobusService>();
     builder.Services.AddScoped<ITipoProductoService, TipoProductoService>();
     builder.Services.AddScoped<IUsuarioAdminService, UsuarioAdminService>();
+
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddControllersWithViews()
         .AddJsonOptions(options =>

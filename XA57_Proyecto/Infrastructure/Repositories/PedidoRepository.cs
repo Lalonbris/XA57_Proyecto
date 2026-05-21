@@ -37,7 +37,15 @@ namespace XA57_Proyecto.Infrastructure.Repositories
             }
         }
 
-        public Task<int> ContarAsync() => _context.Pedidos.CountAsync();
+        public async Task<int> ContarAsync(string? estado = null)
+        {
+            var query = _context.Pedidos.AsQueryable();
+            if (!string.IsNullOrEmpty(estado))
+            {
+                query = query.Where(p => p.Estado == estado);
+            }
+            return await query.CountAsync();
+        }
 
         public Task<List<Pedido>> ObtenerTodosAsync() =>
             _context.Pedidos
@@ -63,5 +71,21 @@ namespace XA57_Proyecto.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task ActualizarAsync(Pedido pedido)
+        {
+            _context.Pedidos.Update(pedido);
+            await _context.SaveChangesAsync();
+        }
+
+        public Task<List<Pedido>> ObtenerPorUsuarioIdAsync(string userId, string estado) =>
+            _context.Pedidos
+                .Where(p => p.UsuarioId == userId && p.Estado == estado)
+                .Include(p => p.Producto)
+                .ToListAsync();
+
+        public Task<int> ContarPorUsuarioIdAsync(string userId, string estado) =>
+            _context.Pedidos
+                .CountAsync(p => p.UsuarioId == userId && p.Estado == estado);
     }
 }

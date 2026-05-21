@@ -21,7 +21,6 @@
                     <th>Tamaño</th>
                     <th>Línea</th>
                     <th>Precio</th>
-                    <th>Tipo</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -35,7 +34,6 @@
                         <td class="col-tamano">@producto.Tamano</td>
                         <td class="col-linea">@producto.Linea?.Nombre</td>
                         <td class="col-precio">$@producto.Precio.ToString("N2")</td>
-                        <td class="col-tipo">@producto.TipoProducto?.Nombre</td>
                         <td class="col-estado">@(producto.Activo ? "Activo" : "Inactivo")</td>
                         <td>
                             <button class="xa57-btn-icon" onclick="editarProducto(@producto.Id)">
@@ -483,7 +481,6 @@ function agregarFilaTabla(p) {
         <td class="col-tamano">${p.tamano || ''}</td>
         <td class="col-linea">${lineaNombre}</td>
         <td class="col-precio">$${p.precio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        <td class="col-tipo">${tipoNombre}</td>
         <td class="col-estado">
             <span class="xa57-badge${p.activo ? " xa57-badge--active" : " xa57-badge--inactive"}">
                 ${p.activo ? "Activo" : "Inactivo"}
@@ -512,7 +509,6 @@ function actualizarFilaTabla(p) {
     fila.querySelector('.col-tamano').textContent = p.tamano || '';
     fila.querySelector('.col-linea').textContent = lineaNombre;
     fila.querySelector('.col-precio').textContent = `$${p.precio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    fila.querySelector('.col-tipo').textContent = tipoNombre;
     
     const badge = fila.querySelector('.xa57-badge');
     badge.className = `xa57-badge${p.activo ? " xa57-badge--active" : " xa57-badge--inactive"}`;

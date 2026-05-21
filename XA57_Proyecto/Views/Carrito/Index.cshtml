@@ -121,7 +121,7 @@
                 <a asp-controller="Home" asp-action="Catalogo" class="btn-xa57 btn-xa57-secondary">
                     Seguir comprando
                 </a>
-                <button class="btn-xa57 btn-xa57-primary">
+                <button type="button" class="btn-xa57 btn-xa57-primary" data-bs-toggle="modal" data-bs-target="#modalPago">
                     Confirmar pedido
                 </button>
             </div>
@@ -129,3 +129,63 @@
     }
 
 </div>
+
+<!-- Modal de Pago -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true" data-bs-theme="dark">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: var(--bg-2); border: 1px solid var(--bd-2);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--bd-1);">
+        <h5 class="modal-title" id="modalPagoLabel" style="color: var(--tx-0); font-family: var(--ff-h);">Hoja de Ayuda de Pago</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: var(--tx-1);">
+        <p>Para procesar tu pedido, debes realizar una transferencia interbancaria con los siguientes datos:</p>
+        <div style="background-color: var(--bg-3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin-bottom: 5px;"><strong>Banco:</strong> Banco de Prueba S.A.</p>
+            <p style="margin-bottom: 5px;"><strong>Beneficiario:</strong> XA57 Proyecto</p>
+            <p style="margin-bottom: 5px;"><strong>CLABE:</strong> <span style="color: #60a5fa; font-size: 1.1em;">1234567890</span></p>
+            <p style="margin-bottom: 0;"><strong>Monto a pagar:</strong> <span style="color: var(--tx-0); font-weight: bold;">$@Model.Total.ToString("N2")</span></p>
+        </div>
+        <p>Descarga tu hoja de ayuda en PDF para ver todos los detalles. Una vez que realices el pago, confirma para enviar tu pedido a validación.</p>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--bd-1);">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a href="/Carrito/DescargarHojaAyuda" target="_blank" class="btn btn-primary" style="background-color: #3b82f6; border-color: #3b82f6; color: white;">
+            <i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">download</i> Descargar PDF
+        </a>
+        <button type="button" class="btn btn-success" onclick="confirmarPago()">
+            Confirmar y Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function confirmarPago() {
+    try {
+        const response = await fetch('/Carrito/ConfirmarPago', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            alert('¡Tu pedido ha sido enviado a pago exitosamente!');
+            
+            // Actualizar el icono del carrito
+            if (window.actualizarIconoCarrito) {
+                window.actualizarIconoCarrito();
+            }
+            
+            window.location.href = '/Home/Catalogo'; // Redirigir al catálogo después de confirmar
+        } else {
+            alert('Ocurrió un error al procesar el pago.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión.');
+    }
+}
+</script>
