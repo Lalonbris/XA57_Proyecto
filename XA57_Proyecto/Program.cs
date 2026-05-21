@@ -69,6 +69,10 @@ try
         var services = scope.ServiceProvider;
         try
         {
+
+            var context = services.GetRequiredService<AppDbContext>();
+            await context.Database.MigrateAsync();
+            
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
             await IdentityDataInitializer.SeedData(userManager, roleManager);
