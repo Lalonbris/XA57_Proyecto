@@ -10,7 +10,7 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend
 WORKDIR /app
 COPY . .
-COPY --from=frontend /app/dist ./XA57_Proyecto/wwwroot/
+COPY --from=frontend /app/build ./XA57_Proyecto/wwwroot/
 RUN dotnet publish XA57_Proyecto/XA57_Proyecto.csproj -c Release -o /out
 
 # Runtime
