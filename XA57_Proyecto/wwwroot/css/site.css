@@ -5,18 +5,18 @@
 
 :root {
     /* Backgrounds */
-    --bg-0:  #1a1a1a;
-    --bg-1:  #202020;
-    --bg-2:  #262626;
-    --bg-3:  #2a2a2a;
-    --bg-4:  #313131;
-    --bg-5:  #383838;
+    --bg-0:  #070707;
+    --bg-1:  #0f0f0f;
+    --bg-2:  #161616;
+    --bg-3:  #1d1d1d;
+    --bg-4:  #252525;
+    --bg-5:  #2e2e2e;
 
     /* Borders */
-    --bd-0:  #242424;
-    --bd-1:  #2e2e2e;
-    --bd-2:  #3a3a3a;
-    --bd-3:  #484848;
+    --bd-0:  #181818;
+    --bd-1:  #232323;
+    --bd-2:  #313131;
+    --bd-3:  #424242;
 
     /* Text */
     --tx-0:  #f5f5f5;
@@ -56,7 +56,7 @@
 html {
     position: relative;
     min-height: 100%;
-    font-size: 108%; /* Aumenta el tamaño base de la fuente a ~17px */
+    font-size: 103%; /* Aumenta el tamaño base de la fuente */
 }
 
 body {
@@ -779,39 +779,6 @@ a.xa57-product-thumb__link:hover .xa57-product-thumb__name {
 }
 
 /* ══════════════════════════════════════════
-   LOGIN MODAL (Bootstrap override)
-══════════════════════════════════════════ */
-.xa57-modal-content {
-    background-color: var(--bg-2);
-    border: 1px solid var(--bd-2);
-    border-radius: var(--r-xl);
-    color: var(--tx-1);
-}
-
-.xa57-modal-content .modal-header {
-    border-bottom: 1px solid var(--bd-1);
-    color: var(--tx-0);
-}
-
-.xa57-modal-content .modal-header .modal-title {
-    font-family: var(--ff-h);
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.xa57-modal-content .modal-body {
-    font-size: 0.9rem;
-}
-
-.xa57-modal-content .modal-footer {
-    border-top: 1px solid var(--bd-1);
-}
-
-.xa57-modal-content .btn-close {
-    filter: invert(0.8);
-}
- 
-/* ══════════════════════════════════════════
    CART
 ══════════════════════════════════════════ */
 .xa57-cart-item {
@@ -1092,20 +1059,5 @@ a.xa57-product-thumb__link:hover .xa57-product-thumb__name {
 .xa57-manage-nav .nav-link.active .material-icons {
     color: var(--tx-1);
 }
-
-.xa57-table .col-estado,
-.xa57-table .col-tiempo-produccion {
-    max-width: 150px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    position: relative;
-}
-
-.xa57-table .xa57-badge {
-    position: static;
-    transform: none;
-}
-
 
 

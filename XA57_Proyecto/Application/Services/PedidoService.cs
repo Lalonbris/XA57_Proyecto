@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using XA57_Proyecto.Application.DTOs;
 using XA57_Proyecto.Application.Exceptions;
 using XA57_Proyecto.Application.Interfaces;
@@ -13,27 +11,17 @@ namespace XA57_Proyecto.Application.Services
         private readonly IPedidoRepository _pedidoRepo;
         private readonly IProductoRepository _productoRepo;
         private readonly ITipoProductoRepository _tipoProductoRepo;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PedidoService(
-            IPedidoRepository pedidoRepo, 
-            IProductoRepository productoRepo, 
-            ITipoProductoRepository tipoProductoRepo,
-            IHttpContextAccessor httpContextAccessor)
+
+        public PedidoService(IPedidoRepository pedidoRepo, IProductoRepository productoRepo, ITipoProductoRepository tipoProductoRepo)
         {
             _pedidoRepo = pedidoRepo;
             _productoRepo = productoRepo;
             _tipoProductoRepo = tipoProductoRepo;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<PedidoResultDto> AgregarAsync(CarritoItemDto item, string userId)
+        public async Task<PedidoResultDto> AgregarAsync(CarritoItemDto item)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new ValidationException("El usuario debe estar autenticado para agregar productos al carrito.");
-            }
-            
             if (item.Cantidad <= 0)
             {
                 throw new ValidationException("La cantidad debe ser mayor a cero.");
@@ -63,7 +51,6 @@ namespace XA57_Proyecto.Application.Services
 
             var pedido = new Pedido
             {
-                UsuarioId       = userId,
                 ProductoId      = item.ProductoId,
                 ModeloAutobusId = item.ModeloAutobusId,
                 LineaId         = item.LineaId,
@@ -74,7 +61,7 @@ namespace XA57_Proyecto.Application.Services
                 Ruta            = item.Ruta ?? "",
                 NotasEspeciales = item.NotasEspeciales ?? "",
                 Cantidad        = item.Cantidad,
-                Estado          = "Pedido",
+                Estado          = "Recibido",
                 FechaCreacion   = DateTime.UtcNow
             };
 
@@ -87,11 +74,11 @@ namespace XA57_Proyecto.Application.Services
             };
         }
 
-        public Task<List<Pedido>> ObtenerCarritoAsync(string userId) => _pedidoRepo.ObtenerPorUsuarioIdAsync(userId, "Pedido");
+        public Task<List<Pedido>> ObtenerCarritoAsync() => _pedidoRepo.ObtenerConProductosAsync();
 
         public Task EliminarItemAsync(int id) => _pedidoRepo.EliminarAsync(id);
 
-        public Task<int> ContarItemsAsync(string userId) => _pedidoRepo.ContarPorUsuarioIdAsync(userId, "Pedido");
+        public Task<int> ContarItemsAsync() => _pedidoRepo.ContarAsync();
 
         public Task<List<Pedido>> ObtenerTodosAsync() => _pedidoRepo.ObtenerTodosAsync();
 
@@ -104,20 +91,8 @@ namespace XA57_Proyecto.Application.Services
             {
                 throw new ValidationException("El pedido no existe.");
             }
-
-            if (estado == "En Producción" && pedido.Estado != "En Producción" && pedido.TiempoProduccionInicio == null)
-            {
-                pedido.TiempoProduccionInicio = DateTime.UtcNow;
-                pedido.TiempoProduccionFin = null;
-            }
-            else if (estado == "Enviado" && pedido.TiempoProduccionInicio != null && pedido.TiempoProduccionFin == null)
-            {
-                pedido.TiempoProduccionFin = DateTime.UtcNow;
-            }
-
             pedido.Estado = estado;
-            await _pedidoRepo.ActualizarAsync(pedido);
+            await _pedidoRepo.ActualizarEstadoAsync(id, estado);
         }
     }
 }
-

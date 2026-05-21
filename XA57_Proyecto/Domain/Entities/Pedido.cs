@@ -10,13 +10,9 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("usuario_id")]
-        public string UsuarioId { get; set; } = null!;
-        public ApplicationUser? Usuario { get; set; }
- 
         [Column("producto_id")]
         public int ProductoId { get; set; }
- 
+
         [Column("modelo_autobus_id")]
         public int? ModeloAutobusId { get; set; }
 
@@ -50,12 +46,6 @@ namespace XA57_Proyecto.Domain.Entities
 
         [Column("fecha_creacion")]
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
-
-        [Column("tiempo_produccion_inicio")]
-        public DateTime? TiempoProduccionInicio { get; set; }
-
-        [Column("tiempo_produccion_fin")]
-        public DateTime? TiempoProduccionFin { get; set; }
 
         public Producto? Producto { get; set; }
         public ModeloAutobus? ModeloAutobus { get; set; }

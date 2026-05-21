@@ -19,7 +19,7 @@
     var accionActual      = ViewContext.RouteData.Values["action"]?.ToString();
 }
 
-<body data-user-authenticated="@(User.Identity?.IsAuthenticated.ToString().ToLower() ?? "false")">
+<body>
     <header>
         <nav class="navbar navbar-expand-sm xa57-navbar">
             <div class="container-fluid px-4">
@@ -86,25 +86,6 @@
         </main>
     </div>
 
-    <!-- Modal para solicitar inicio de sesión -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content xa57-modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">Inicio de Sesión Requerido</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Necesitas iniciar sesión para agregar productos a tu carrito.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <a href="/Identity/Account/Login" class="btn btn-primary">Iniciar Sesión</a>
-                </div>
-            </div>
-        </div>
-    </div>
- 
     <footer class="xa57-footer">
         <div class="container text-center">
             &copy; 2026 XA57 Coleccionables &nbsp;&middot;&nbsp;

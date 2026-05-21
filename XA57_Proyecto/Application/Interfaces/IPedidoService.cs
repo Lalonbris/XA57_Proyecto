@@ -5,10 +5,10 @@ namespace XA57_Proyecto.Application.Interfaces
 {
     public interface IPedidoService
     {
-        Task<PedidoResultDto> AgregarAsync(CarritoItemDto item, string userId);
-        Task<List<Pedido>> ObtenerCarritoAsync(string userId);
+        Task<PedidoResultDto> AgregarAsync(CarritoItemDto item);
+        Task<List<Pedido>> ObtenerCarritoAsync();
         Task EliminarItemAsync(int id);
-        Task<int> ContarItemsAsync(string userId);
+        Task<int> ContarItemsAsync();
         Task<List<Pedido>> ObtenerTodosAsync();
         Task<Pedido?> ObtenerPorIdAsync(int id);
         Task ActualizarEstadoAsync(int id, string estado);

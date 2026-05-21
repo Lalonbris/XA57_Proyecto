@@ -10,10 +10,10 @@
         <div class="d-flex gap-2">
             <select class="form-select form-select-sm" id="filtroEstado" onchange="filtrarPedidos()" style="width: 200px;">
                 <option value="">Todos los estados</option>
-                <option value="Pedido">Pedido</option>
-                <option value="En Producción">En Producción</option>
-                <option value="Pagado">Pagado</option>
+                <option value="Recibido">Recibido</option>
+                <option value="En producción">En producción</option>
                 <option value="Enviado">Enviado</option>
+                <option value="Entregado">Entregado</option>
             </select>
         </div>
     </div>
@@ -28,7 +28,6 @@
                     <th>Cant.</th>
                     <th>Cliente</th>
                     <th>Estado</th>
-                    <th>Tiempo Producción</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -41,31 +40,7 @@
                         <td>@pedido.Producto?.Nombre</td>
                         <td>@pedido.Cantidad</td>
                         <td>@pedido.NombreOperador</td>
-                        <td class="col-estado">
-                            @{
-                                var badgeClass = pedido.Estado == "Pedido" ? "xa57-badge--received" :
-                                                pedido.Estado == "En Producción" ? "xa57-badge--processing" :
-                                                pedido.Estado == "Pagado" ? "xa57-badge--warning" :
-                                                pedido.Estado == "Enviado" ? "xa57-badge--completed" :
-                                                "xa57-badge--default";
-                            }
-                            <span class="xa57-badge @badgeClass">@pedido.Estado</span>
-                        </td>
-                        <td class="col-tiempo-produccion" data-inicio="@pedido.TiempoProduccionInicio?.ToString("o")" data-fin="@pedido.TiempoProduccionFin?.ToString("o")">
-                            @if (pedido.TiempoProduccionFin.HasValue && pedido.TiempoProduccionInicio.HasValue)
-                            {
-                                var diff = pedido.TiempoProduccionFin.Value - pedido.TiempoProduccionInicio.Value;
-                                <span>@Math.Floor(diff.TotalHours).ToString("00"):@diff.Minutes.ToString("00"):@diff.Seconds.ToString("00")</span>
-                            }
-                            else if (pedido.Estado == "En Producción" && pedido.TiempoProduccionInicio.HasValue)
-                            {
-                                <span class="tiempo-vivo">--:--:--</span>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
+                        <td class="col-estado">@pedido.Estado</td>
                         <td>
                             <button class="xa57-btn-icon" title="Ver Detalle" onclick="verPedido(@pedido.Id)">
                                 <i class="material-icons">visibility</i>
@@ -73,22 +48,22 @@
                             <button class="xa57-btn-icon" title="Lista de Picking" onclick="window.open('/Admin/ListaPicking/@pedido.Id', '_blank')">
                                 <i class="material-icons">print</i>
                             </button>
-                            @if (pedido.Estado == "Pedido")
+                            @if (pedido.Estado == "Recibido")
                             {
-                                <button class="xa57-btn-icon xa57-btn-icon--success btn-next-state" title="Enviar a Producción" onclick="cambiarEstado(@pedido.Id, 'En Producción')">
+                                <button class="xa57-btn-icon xa57-btn-icon--success btn-next-state" title="Enviar a Manufactura" onclick="cambiarEstado(@pedido.Id, 'En producción')">
                                     <i class="material-icons">factory</i>
                                 </button>
                             }
-                            else if (pedido.Estado == "En Producción")
-                            {
-                                <button class="xa57-btn-icon xa57-btn-icon--success btn-next-state" title="Marcar como Pagado" onclick="cambiarEstado(@pedido.Id, 'Pagado')">
-                                    <i class="material-icons">payment</i>
-                                </button>
-                            }
-                            else if (pedido.Estado == "Pagado")
+                            else if (pedido.Estado == "En producción")
                             {
                                 <button class="xa57-btn-icon xa57-btn-icon--success btn-next-state" title="Marcar como Enviado" onclick="cambiarEstado(@pedido.Id, 'Enviado')">
                                     <i class="material-icons">local_shipping</i>
+                                </button>
+                            }
+                            else if (pedido.Estado == "Enviado")
+                            {
+                                <button class="xa57-btn-icon xa57-btn-icon--success btn-next-state" title="Marcar como Entregado" onclick="cambiarEstado(@pedido.Id, 'Entregado')">
+                                    <i class="material-icons">check_circle</i>
                                 </button>
                             }
                         </td>
@@ -164,7 +139,6 @@
 .xa57-badge--success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 .xa57-badge--cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 .xa57-badge--default { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
-.xa57-badge--warning { background: rgba(234, 179, 8, 0.15); color: #eab308; }
 
 .xa57-btn-icon {
     background: var(--bg-3);
@@ -251,49 +225,57 @@ async function cambiarEstado(id, nuevoEstado) {
     });
     
     if (response.ok) {
-        window.location.reload();
+        // En este caso, para Pedidos, es mejor recargar o actualizar la fila.
+        // Vamos a actualizar la fila para seguir con la política de no recargar.
+        actualizarFilaPedido(id, nuevoEstado);
     } else {
         const data = await response.json();
         alert(data.message || 'Error al actualizar el estado');
     }
 }
 
-function getEstadoColorClass(estado) {
-    switch(estado) {
-        case "Pedido": return "xa57-badge--received";
-        case "En Producción": return "xa57-badge--processing";
-        case "Pagado": return "xa57-badge--warning";
-        case "Enviado": return "xa57-badge--completed";
-        default: return "xa57-badge--default";
+function actualizarFilaPedido(id, nuevoEstado) {
+    const fila = document.querySelector(`#pedidosTable tbody tr[data-id="${id}"]`);
+    if (!fila) return;
+    
+    const badge = fila.querySelector('.col-estado .xa57-badge');
+    badge.textContent = nuevoEstado;
+    
+    // Update badge color
+    badge.className = 'xa57-badge ' + getEstadoColorClass(nuevoEstado);
+    
+    // Update action buttons (next state)
+    const actionsCell = fila.querySelector('td:last-child');
+    const btnNext = actionsCell.querySelector('.btn-next-state');
+    
+    if (nuevoEstado == 'Entregado') {
+        if (btnNext) btnNext.remove();
+    } else {
+        const nextState = nuevoEstado == 'Recibido' ? 'En producción' : 
+                          nuevoEstado == 'En producción' ? 'Enviado' : 
+                          nuevoEstado == 'Enviado' ? 'Entregado' : null;
+        
+        if (nextState && btnNext) {
+            btnNext.onclick = () => cambiarEstado(id, nextState);
+            const icon = btnNext.querySelector('.material-icons');
+            if (nuevoEstado == 'En producción') {
+                icon.textContent = 'local_shipping';
+                btnNext.title = 'Marcar como Enviado';
+            } else if (nuevoEstado == 'Enviado') {
+                icon.textContent = 'check_circle';
+                btnNext.title = 'Marcar como Entregado';
+            }
+        }
     }
 }
 
-// Lógica de contadores en vivo
-function actualizarContadores() {
-    const ahora = new Date();
-    document.querySelectorAll('.col-tiempo-produccion .tiempo-vivo').forEach(el => {
-        const td = el.closest('.col-tiempo-produccion');
-        const inicioIso = td.getAttribute('data-inicio');
-        if (inicioIso) {
-            const inicio = new Date(inicioIso);
-            const diffMs = ahora - inicio;
-            if (diffMs > 0) {
-                const totalSecs = Math.floor(diffMs / 1000);
-                const hrs = Math.floor(totalSecs / 3600);
-                const mins = Math.floor((totalSecs % 3600) / 60);
-                const secs = totalSecs % 60;
-                
-                el.textContent = 
-                    String(hrs).padStart(2, '0') + ':' + 
-                    String(mins).padStart(2, '0') + ':' + 
-                    String(secs).padStart(2, '0');
-            }
-        }
-    });
+function getEstadoColorClass(estado) {
+    switch(estado) {
+        case "Recibido": return "xa57-badge--received";
+        case "En producción": return "xa57-badge--processing";
+        case "Enviado": return "xa57-badge--completed";
+        case "Entregado": return "xa57-badge--success";
+        default: return "xa57-badge--default";
+    }
 }
-
-// Iniciar actualización cada segundo
-setInterval(actualizarContadores, 1000);
-actualizarContadores(); // Ejecutar inmediatamente
-
 </script>

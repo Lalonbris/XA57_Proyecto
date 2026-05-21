@@ -72,16 +72,6 @@ export default function Configurador(props) {
     };
 
     const handleAgregarCarrito = async () => {
-        const isUserAuthenticated = document.body.dataset.userAuthenticated === 'true';
-
-        if (!isUserAuthenticated) {
-            if (window.bootstrap) {
-                const loginModal = new window.bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-            }
-            return;
-        }
-
         const datos = { productoId, color: colorNombre, colorHex, numeroSerie, notasEspeciales, cantidad };
         const response = await fetch("/Carrito/Agregar", {
             method: "POST",

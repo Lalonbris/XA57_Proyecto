@@ -356,19 +356,6 @@ namespace XA57_Proyecto.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ruta");
 
-                    b.Property<DateTime?>("TiempoProduccionFin")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("tiempo_produccion_fin");
-
-                    b.Property<DateTime?>("TiempoProduccionInicio")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("tiempo_produccion_inicio");
-
-                    b.Property<string>("UsuarioId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("usuario_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LineaId");
@@ -376,8 +363,6 @@ namespace XA57_Proyecto.Migrations
                     b.HasIndex("ModeloAutobusId");
 
                     b.HasIndex("ProductoId");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Pedidos");
                 });
@@ -535,19 +520,11 @@ namespace XA57_Proyecto.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("XA57_Proyecto.Domain.Entities.ApplicationUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Linea");
 
                     b.Navigation("ModeloAutobus");
 
                     b.Navigation("Producto");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("XA57_Proyecto.Domain.Entities.Producto", b =>
