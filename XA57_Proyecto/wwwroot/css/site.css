@@ -779,6 +779,39 @@ a.xa57-product-thumb__link:hover .xa57-product-thumb__name {
 }
 
 /* ══════════════════════════════════════════
+   LOGIN MODAL (Bootstrap override)
+══════════════════════════════════════════ */
+.xa57-modal-content {
+    background-color: var(--bg-2);
+    border: 1px solid var(--bd-2);
+    border-radius: var(--r-xl);
+    color: var(--tx-1);
+}
+
+.xa57-modal-content .modal-header {
+    border-bottom: 1px solid var(--bd-1);
+    color: var(--tx-0);
+}
+
+.xa57-modal-content .modal-header .modal-title {
+    font-family: var(--ff-h);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.xa57-modal-content .modal-body {
+    font-size: 0.9rem;
+}
+
+.xa57-modal-content .modal-footer {
+    border-top: 1px solid var(--bd-1);
+}
+
+.xa57-modal-content .btn-close {
+    filter: invert(0.8);
+}
+ 
+/* ══════════════════════════════════════════
    CART
 ══════════════════════════════════════════ */
 .xa57-cart-item {

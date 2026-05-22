@@ -10,9 +10,13 @@ namespace XA57_Proyecto.Domain.Entities
         [Column("id")]
         public int Id { get; set; }
 
+        [Column("usuario_id")]
+        public string UsuarioId { get; set; } = null!;
+        public ApplicationUser? Usuario { get; set; }
+ 
         [Column("producto_id")]
         public int ProductoId { get; set; }
-
+ 
         [Column("modelo_autobus_id")]
         public int? ModeloAutobusId { get; set; }
 
